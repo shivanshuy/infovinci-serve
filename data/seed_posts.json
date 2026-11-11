@@ -1,0 +1,2638 @@
+[
+  {
+    "id": "0d1ba5e7-b8a4-5bb2-928f-b3d47b150544",
+    "slug": "elastic",
+    "title": "Elastic Search",
+    "dateISO": "2026-05-20",
+    "category": "Article",
+    "summary": "Elasticsearch is a powerful, distributed search and analytics engine designed for handling large volumes of structured and unstructured data in real time. Built on Apache Lucene, it enables fast full-text search, filt...",
+    "body": "Elasticsearch is a powerful, distributed search and analytics engine designed for handling large volumes of structured and unstructured data in real time. Built on Apache Lucene, it enables fast full-text search, filtering, and aggregations across massive datasets. It exposes a RESTful APIs for updates, creates, and searches. Elasticsearch can be loosely defined as a NoSQL database.  But more accurately, it’s a distributed search engine.",
+    "imageVariant": 8,
+    "richDoc": {
+      "header": "Elastic Search",
+      "text": "Elasticsearch is a powerful, distributed search and analytics engine designed for handling large volumes of structured and unstructured data in real time. Built on Apache Lucene, it enables fast full-text search, filtering, and aggregations across massive datasets. It exposes a RESTful APIs for updates, creates, and searches. Elasticsearch can be loosely defined as a NoSQL database.  But more accurately, it’s a distributed search engine.",
+      "contents": [
+        {
+          "type": "image",
+          "src": "./elastic-1.png"
+        },
+        {
+          "type": "header",
+          "text": "Elasticsearch is not another NoSQL database"
+        },
+        {
+          "type": "text",
+          "text": "There are plenty of NoSQL databases like MongoDB, PostgreSQL, Solr that can be used to store and query unstructured data. However, these NoSQL databases have limited capabilities for executing complex queries and often they do not perform well for real-time information retrieval. This is where Elasticsearch comes into the picture to fill the gap.\n            Unlike other NoSQL databases, Elasticsearch is primarily designed to be a search engine, instead of a datastore. It has amazing capabilities to perform fast, almost real-time, and advanced searches.\n            Elastic has published an in-depth article discussing the use of Elasticsearch as a NoSQL data store. While there isn't a universally accepted definition for NoSQL data stores, most share a key feature: flexible schema management.\n\nAlthough Elasticsearch also supports schema flexibility, its approach to schema management differs from traditional NoSQL stores. The article highlights the schema management process in Elasticsearch and explains why it shouldn't be treated as just another NoSQL store."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.elastic.co/guide/en/elasticsearch/reference/6.4/_mapping_concepts_across_sql_and_elasticsearch.html#_mapping_concepts_across_sql_and_elasticsearch",
+          "text": "mapping_concepts_across_sql_and_elasticsearch"
+        },
+        {
+          "type": "header",
+          "text": "Why shouldn't we use ElasticSearch as my primary datastore?"
+        },
+        {
+          "type": "text",
+          "text": "Elasticsearch is commonly used in addition to another database. A database system with stronger focus on constraints, correctness and robustness, and on being readily and transactionally updatable, has the master record - which is then asynchronously pushed to Elasticsearch. (Or pulled, if you use one of Elasticsearch's \"rivers\".) Keeping things in sync is something we'll cover in depth in a future article. Here at Found, we typically use PostgreSQL and ZooKeeper as keeper of truths, which we feed into Elasticsearch for awesome searching."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.elastic.co/blog/found-elasticsearch-as-nosql",
+          "text": "elasticsearch-as-nosql"
+        },
+        {
+          "type": "header",
+          "text": "Overall Architecrure"
+        },
+        {
+          "type": "image",
+          "src": "./elastic-2.png"
+        },
+        {
+          "type": "header",
+          "text": "Nodes"
+        },
+        {
+          "type": "text",
+          "text": "Nodes are individual Elasticsearch processes.Usually, you’d run a single Elasticsearch process per machine, so it's easier to think of them as individual servers. Each of these processes is running in isolation from others and is only connected via a common network. Elasticsearch generally runs as a large-scale distributed system, which means you’d typically be running multiple machines(or nodes).\n            But a node is an instance. it is not a machine. This means you can also run multiple nodes on a single machine. "
+        },
+        {
+          "type": "header",
+          "text": "Cluster"
+        },
+        {
+          "type": "text",
+          "text": "A cluster is a collection of one or more nodes that together hold all the data and provide federated indexing and search capabilities across nodes. In Elasticsearch, clusters ensure data is replicated and load is distributed across nodes, ensuring high availability and fault tolerance. Each cluster has a unique identifier for coordinating tasks among nodes. Clusters can be scaled horizontally by adding more nodes. "
+        },
+        {
+          "type": "header",
+          "text": "Types of Nodes"
+        },
+        {
+          "type": "text",
+          "text": "Elasticsearch nodes can be categorized into several types based on their roles and responsibilities within the cluster. Here are the main types of nodes in Elasticsearch: "
+        },
+        {
+          "type": "subHeader",
+          "text": "Master Node"
+        },
+        {
+          "type": "text",
+          "text": "The master node is responsible for cluster-wide activities such as creating or deleting an index, adding or removing nodes, and managing the cluster state. "
+        },
+        {
+          "type": "subHeader",
+          "text": "Data Node"
+        },
+        {
+          "type": "text",
+          "text": "Data nodes are responsible for storing and indexing data. This is the default configuration for nodes."
+        },
+        {
+          "type": "subHeader",
+          "text": "Client Node"
+        },
+        {
+          "type": "text",
+          "text": "A client node is designed to handle client requests and doesn’t store data or participate in the indexing process."
+        },
+        {
+          "type": "subHeader",
+          "text": "Ingest Node"
+        },
+        {
+          "type": "text",
+          "text": "Ingest nodes are responsible for pre-processing documents before they are indexed."
+        },
+        {
+          "type": "image",
+          "src": "./elastic-cluster.png"
+        },
+        {
+          "type": "header",
+          "text": "Index"
+        },
+        {
+          "type": "text",
+          "text": "An Elasticsearch index is a logical namespace that holds a collection of documents, where each document is a collection of fields — which, in turn, are key-value pairs that contain your data..\n            Think of an Elasticsearch cluster as a database that can contain many indices you can consider as a table, and within each index, you have many documents."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.elastic.co/guide/en/elasticsearch/reference/6.0/removal-of-types.html",
+          "text": "removal-of-types"
+        },
+        {
+          "type": "header",
+          "text": "Shards"
+        },
+        {
+          "type": "text",
+          "text": "Documents in an index are divided into multiple shards. Each shard stores a certain subset of the documents of the index.\n            These shards would then live in different data nodes across our cluster. Sharding allows you to distribute your documents throughout multiple servers, allowing a single search to be done in parallel on different hardware."
+        },
+        {
+          "type": "image",
+          "src": "./shard-1.png"
+        },
+        {
+          "type": "image",
+          "src": "./shard-2.png"
+        },
+        {
+          "type": "header",
+          "text": "Replica Shards"
+        },
+        {
+          "type": "text",
+          "text": "One problem with our architecture so far is that if a particular node dies or becomes unavailable, the data in “Shard A” is lost forever. To solve this issue, there are “Replica Shards”. Replica shards are shards that simply store the same documents that the primary shard is associated with stores. So, a replica shard is simply “replicating” or duplicating a particular primary shard.\n             Replicas are never placed on the node containing the original (primary) shards"
+        },
+        {
+          "type": "image",
+          "src": "./shard-3.png"
+        },
+        {
+          "type": "header",
+          "text": "Elastic Data Flow"
+        },
+        {
+          "type": "image",
+          "src": "./data-flow.gif"
+        },
+        {
+          "type": "header",
+          "text": "Elasticsearch Rest APIs"
+        },
+        {
+          "type": "text",
+          "text": "Elasticsearch provides a comprehensive RESTful API that allows you to interact with your data and cluster programmatically."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html",
+          "text": "search-search"
+        },
+        {
+          "type": "image",
+          "src": "./elastic-rest.png"
+        },
+        {
+          "type": "header",
+          "text": "Query DSL"
+        },
+        {
+          "type": "code",
+          "code": "\n{\n//match- Returns all documents with field name matching the mentioned keyword.\n\nPOST <>/_search\n{\n  \"query\": {\n    \"match\": {\n      \"description\": \"elasticsearch tutorial\"\n    }\n  }\n}\n\n//match_phrase - The \"match_phrase\" query matches exact phrases in a field. It analyzes the text and searches for the exact phrase in the specified field.\n\nPOST <>/_search\n{\n  \"query\": {\n    \"match_phrase\": {\n      \"content\": \"quick brown fox\"\n    }\n  }\n}\n\n//Multi-Match Query: The \"multi_match\" query allows searching for a query string in multiple fields simultaneously. It can specify different fields and boost values for each field to influence the relevance scoring.\n\nPOST <>/_search\n{\n  \"query\": {\n    \"multi_match\": {\n      \"query\": \"elasticsearch tutorial\",\n      \"fields\": [\n        \"title\",\n        \"description^2\"\n      ]\n    }\n  }\n}\n\n//Term Query: The term query is used to search for an exact term in a specific field.\n\nPOST <>/_search\n{\n  \"term\": {\n    \"user\": \"johnsmith\"\n  }\n}\n\n//Terms Query: The terms query allows you to search for documents that match any of the specified terms in a field.\n\nPOST <>/_search\n{\n  \"terms\": {\n    \"status\": [\n      \"open\",\n      \"pending\"\n    ]\n  }\n}\n\n//Range Query: The range query is used to search for documents within a specified range of values in a numeric or date field. It allows you to define inclusive or exclusive boundaries. For example, to search for documents where the \"price\" field is between 10 and 100, you can use the following query.\nPOST <>/_search\n{\n  \"range\": {\n    \"price\": {\n      \"gte\": 10,\n      \"lte\": 100\n    }\n  }\n}\n\n//Exists Query: The exists query is used to search for documents that have a non-null value in a specific field. It is useful when you want to find documents that contain a particular field. For example, to search for documents where the \"tags\" field exists.\n\nPOST <>/_search\n{\n  \"exists\": {\n    \"field\": \"tags\"\n  }\n}\n\n//Bool Query: The bool query is a versatile and commonly used compound query that allows you to combine multiple query or filter clauses using boolean logic. It provides the following clauses:\n\n//must: All specified clauses must match. This is equivalent to the logical AND operation.\n//must_not: All specified clauses must not match. This is equivalent to the logical NOT operation.\n//should: At l east one of the specified clauses must match. You can control the minimum number of matches required using the minimum_should_match parameter.\n//filter: Specifies additional filters that should be applied. Filters in the filter clause are used in the filter context, meaning they do not affect the relevance score calculation.\n//The bool query is highly flexible and allows you to create complex search conditions by combining various clauses.\n\nPOST <>/_search\n{\n  \"query\": {\n    \"bool\": {\n      \"must\": [\n        {\n          \"match\": {\n            \"country\": \"China\"\n          }\n        },\n        {\n          \"range\": {\n            \"salary\": {\n              \"gte\": 500000\n            }\n          }\n        }\n      ],\n      \"must_not\": [\n        {\n          \"match\": {\n            \"gender\": \"Male\"\n          }\n        }\n      ]\n    }\n  }\n}\n"
+        },
+        {
+          "type": "header",
+          "text": "Kibana"
+        },
+        {
+          "type": "text",
+          "text": "In addition to the API documentation, Elasticsearch also provides a powerful tool called \"Kibana\" that allows you to interact with Elasticsearch through a graphical user interface (GUI)."
+        },
+        {
+          "type": "image",
+          "src": "./gif-kibana-lens-710-shortened.gif"
+        },
+        {
+          "type": "header",
+          "text": "Intalling Elastic Search and Kibana on Windows"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.elastic.co/guide/en/elasticsearch/reference/current/zip-windows.html#windows-running",
+          "text": "Install Elasticsearch with .zip on Windows"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.elastic.co/guide/en/kibana/current/windows.html",
+          "text": "Install Kibana on Windows"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.youtube.com/watch?v=OewydCFoycg",
+          "text": "how to setup elasticserach and kibana | elasticserach | Kibana"
+        },
+        {
+          "type": "reference",
+          "href": "https://medium.com/better-programming/system-design-series-elasticsearch-architecting-for-search-5d5e61360463",
+          "text": "architecting-for-search"
+        },
+        {
+          "type": "reference",
+          "href": "https://opstree.com/blog/2019/10/01/tuning-of-elasticsearch-cluster",
+          "text": "tuning-of-elasticsearch-cluster"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.atatus.com/blog/elasticsearch-query-dsl",
+          "text": "elasticsearch-query-dsl"
+        },
+        {
+          "type": "reference",
+          "href": "https://medium.com/@reshra3893/a-beginners-guide-to-elasticsearch-queries-d0205512de2d",
+          "text": "a-beginners-guide-to-elasticsearch-querie"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f6cfa86a-35ac-5006-af1f-357a6eddc510",
+    "slug": "web-server",
+    "title": "Introduction to Web Server",
+    "dateISO": "2026-05-19",
+    "category": "Article",
+    "summary": "A web server is a combination of software and hardware that delivers web content to users over the internet. It plays a crucial role in hosting and serving websites by storing, processing, and delivering web pages, im...",
+    "body": "A web server is a combination of software and hardware that delivers web content to users over the internet. It plays a crucial role in hosting and serving websites by storing, processing, and delivering web pages, images, videos, and other data to clients, typically web browsers, using the Hypertext Transfer Protocol (HTTP) or its secure variant HTTPS.",
+    "imageVariant": 8,
+    "richDoc": {
+      "header": "Introduction to Web Server",
+      "text": "A web server is a combination of software and hardware that delivers web content to users over the internet. It plays a crucial role in hosting and serving websites by storing, processing, and delivering web pages, images, videos, and other data to clients, typically web browsers, using the Hypertext Transfer Protocol (HTTP) or its secure variant HTTPS.",
+      "contents": [
+        {
+          "type": "image",
+          "src": "./web-server.png"
+        },
+        {
+          "type": "header",
+          "text": "Usage statistics and market shares of web servers"
+        },
+        {
+          "type": "text",
+          "text": "Nginx leads the market with a significant share, followed by Apache and Cloudflare Server."
+        },
+        {
+          "type": "image",
+          "src": "./web-server-share.png"
+        },
+        {
+          "type": "header",
+          "text": "NGINX Process Architecture"
+        },
+        {
+          "type": "text",
+          "text": "NGINX has a master process (which performs the privileged operations such as reading configuration and binding to ports) and a number of worker and helper processes. On four‑core server, the NGINX master process creates four worker processes and a couple of cache helper processes which manage the on‑disk content cache."
+        },
+        {
+          "type": "image",
+          "src": "./ngnix-arch.png"
+        },
+        {
+          "type": "code",
+          "code": "NGINX uses a predictable process model that is tuned to the available hardware resources:\n\n- The master process performs the privileged operations such as reading configuration and binding to ports, and then creates a small number of child processes (the next three types).\n- The cache loader process runs at startup to load the disk‑based cache into memory, and then exits. It is scheduled conservatively, so its resource demands are low.\n- The cache manager process runs periodically and prunes entries from the disk caches to keep them within the configured sizes.\n- The worker processes do all of the work! They handle network connections, read and write content to disk, and communicate with upstream servers.\n"
+        },
+        {
+          "type": "header",
+          "text": "NGINX as Reverse Proxy"
+        },
+        {
+          "type": "text",
+          "text": "A reverse proxy is a server that sits in front of one or more web servers, acting as an intermediary between clients (like web browsers) and the servers. It intercepts requests from clients, forwards them to the appropriate server, and then returns the response to the client, appearing as if it originated from the proxy itself.\n            By utilizing Nginx as a reverse proxy, you can avoid CORS issues altogether. Nginx can act as a reverse proxy for your API, which means it will forward requests from clients to your API and then return the response to the client. This way, the client only communicates with Nginx, and Nginx communicates with the API."
+        },
+        {
+          "type": "image",
+          "src": "./ngnix-reverse.png"
+        },
+        {
+          "type": "header",
+          "text": "Forward vs Reverse Proxy"
+        },
+        {
+          "type": "text",
+          "text": "A forward proxy is a type of proxy server that operates on behalf of the client. It is the designated exit point for subnet users seeking to connect with resources outside their private network. In contrast, a reverse proxy server is the entry point for external systems to access resources within a private subnet. A reverse proxy is a server that sits between client devices (such as web browsers) and web servers, acting as an intermediary. Unlike a forward proxy, which handles client requests and forwards them to the internet, a reverse proxy handles client requests by forwarding them to one or more back-end servers."
+        },
+        {
+          "type": "image",
+          "src": "./fp-vs-rp.png"
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.nginx.org/blog/inside-nginx-how-we-designed-for-performance-scale",
+          "text": "inside-nginx-how-we-designed-for-performance-scale"
+        },
+        {
+          "type": "reference",
+          "href": "https://nginxblog-8de1046ff5a84f2c-endpoint.azureedge.net/blobnginxbloga72cde487e/wp-content/uploads/2024/12/150427_NGINX_Architecture_IG_CMYK.pdf",
+          "text": "_NGINX_Architecture_IG_CMYK.pd"
+        },
+        {
+          "type": "reference",
+          "href": "https://w3techs.com/technologies/overview/web_server",
+          "text": "web_servers_share"
+        }
+      ]
+    }
+  },
+  {
+    "id": "4b0d2e18-e070-5a2d-b40b-4cb4c3e18762",
+    "slug": "mcp",
+    "title": "Model Context Protocol",
+    "dateISO": "2026-05-18",
+    "category": "Article",
+    "summary": "MCP is an open protocol that standardizes how applications provide context to LLMs. MCP provides a standardized way to connect AI models to different data sources and tools.",
+    "body": "MCP is an open protocol that standardizes how applications provide context to LLMs. MCP provides a standardized way to connect AI models to different data sources and tools.",
+    "imageVariant": 6,
+    "richDoc": {
+      "header": "Model Context Protocol",
+      "text": "MCP is an open protocol that standardizes how applications provide context to LLMs. MCP provides a standardized way to connect AI models to different data sources and tools.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Components of MCP"
+        },
+        {
+          "type": "text",
+          "text": "It consists of four components: MCP Host, MCP Client and MCP Server, Data Sources."
+        },
+        {
+          "type": "subHeader",
+          "text": "MCP Host"
+        },
+        {
+          "type": "text",
+          "text": "LLM application (such as Cursor) that manages connections."
+        },
+        {
+          "type": "subHeader",
+          "text": "MCP Client"
+        },
+        {
+          "type": "text",
+          "text": "Maintains 1:1 connections with MCP servers. When a client connects to a server, it sends an initialize message, with information about what protocol version it supports. The server responds in kind.\nFrom there, the client can ask the server about what features it has."
+        },
+        {
+          "type": "subHeader",
+          "text": "MCP Server"
+        },
+        {
+          "type": "text",
+          "text": "Provides context, tools, and capabilities to the LLMs. MCP describes three different kinds of features that a server can provide: Prompts, Resources, and Tools."
+        },
+        {
+          "type": "subHeader",
+          "text": "Data Sources"
+        },
+        {
+          "type": "text",
+          "text": "The actual sources of data. These can be databases, APIs, or other services."
+        },
+        {
+          "type": "image",
+          "src": "./mcp.png"
+        },
+        {
+          "type": "reference",
+          "href": "https://nshipster.com/model-context-protocol",
+          "text": "model-context-protocol"
+        },
+        {
+          "type": "reference",
+          "href": "https://modelcontextprotocol.io/introduction",
+          "text": "modelcontextprotocol-io-introduction"
+        }
+      ]
+    }
+  },
+  {
+    "id": "a2a11e75-692b-5c3f-88f9-a8c758020b4e",
+    "slug": "transformers",
+    "title": "Transformers",
+    "dateISO": "2026-05-17",
+    "category": "Article",
+    "summary": "<>",
+    "body": "<>",
+    "imageVariant": 8,
+    "richDoc": {
+      "header": "Transformers",
+      "text": "<>",
+      "contents": [
+        {
+          "type": "header",
+          "code": "Can computers understand Natural Language?"
+        },
+        {
+          "type": "text",
+          "text": "<>"
+        },
+        {
+          "type": "header",
+          "text": "Symbolic NLP"
+        },
+        {
+          "type": "text",
+          "text": "Given a collection of rules (e.g., a Chinese phrasebook, with questions and matching answers), the computer emulates natural language understanding (or other NLP tasks) by applying those rules to the data it confronts. For example, a prompt of \"You are very helpful\" would first be matched with the pattern of \"you are {something},\" corresponding to a response of \"What makes you think I am {something}?\". The drawbacks of early symbolic NLP models are obvious. First, symbolic NLP models are not scalable. To expand the capability of such models, for example, building a chatbot that can have conversations as a teacher, you would need to define a new set of rules from scratch. Moreover, natural languages are ever evolving, which requires engineers to apply recurring updates and additions to the rules."
+        },
+        {
+          "type": "header",
+          "text": "Statistical NLP"
+        },
+        {
+          "type": "text",
+          "text": "\"statistical NLP\" refers to a traditional approach that uses statistical methods to analyze text based on probability distributions and patterns found in large datasets. This approach is based on the idea that language is a complex system that can be modeled using statistical methods. The goal of statistical NLP is to develop algorithms that can automatically analyze and understand human language."
+        },
+        {
+          "type": "header",
+          "text": "Neural NLP"
+        },
+        {
+          "type": "text",
+          "text": "The statistical approach has been replaced by the neural networks approach, using semantic networks and word embeddings to capture semantic properties of words. Statistical NLP relies on established statistical techniques like n-grams and probability calculations to understand language, while neural networks learn complex representations through interconnected layers of nodes, adapting to data automatically."
+        },
+        {
+          "type": "header",
+          "text": "You shall know a word by the company it keeps - \"J. R. Firth\""
+        },
+        {
+          "type": "text",
+          "text": "Words are more than just a collection of letters. When a word is weaved into a sentence its meaning comes from the context its being used. So how do we teach machines the semantic relationship between words? A computer can look at two strings and tell you whether they are the same or not. However, can it learn to recognize different but closely related words?"
+        },
+        {
+          "type": "header",
+          "text": "Birth of Word Embeddings (Vector Embeddings)"
+        },
+        {
+          "type": "text",
+          "text": "Word embeddings, such as Word2Vec, GloVe, and FastText, generate dense vector representations where the vector values are trained to predict the word’s context. Consequently, words that appear in similar contexts have vectors that are closer together, preserving both semantic and syntactic relationships.\n            In 2013, NLP researcher Tomáš Mikolov and his team introduced the innovative Word2Vec method, which represented words' semantic and syntactic properties through word embeddings. This approach is based on the idea that the meaning of a word is encapsulated in its distributional propertiesm , the contexts in which a word appears across large text corpora. In the high-dimensional Word2Vec embedding space, similar words lie close to each other.\n            Word2Vec's introduction marked a shift towards leveraging unsupervised learning in NLP, allowing models to learn from raw text data without explicit annotations. This has opened doors to even more sophisticated techniques in understanding and generating human language.\n            "
+        },
+        {
+          "type": "code",
+          "code": "          Semantics Dimension 2 (e.g., Masculine)\n                   ↑\n                   |\n            king   |             man\n                   |\n                   |\n                   |\n    queen          |             woman\n                   |\n                   |\n                   |\n    ---------------+--------------------→ Semantics Dimension 1 (e.g., Royalty)\n                   |\n                   |\n                   |\n                   |\n"
+        },
+        {
+          "type": "header",
+          "text": "Static vs Contextaul Embeddings"
+        },
+        {
+          "type": "text",
+          "text": "Word embeddings provided by word2vec or fastText has a vocabulary (dictionary) of words. The elements of this vocabulary (or dictionary) are words and its corresponding word embeddings. Hence, given a word, its embeddings is always the same in whichever sentence it occurs. Here, the pre-trained word embeddings are static.\nHowever, contextual embeddings (are generally obtained from the transformer based models). The emeddings are obtained from a model by passing the entire sentence to the pre-trained model.\nontextual embedding heavily relies on the attention mechanism to capture the context of a word by dynamically weighting the importance of surrounding words, allowing the model to generate different representations for the same word depending on its context within a sentence; this is a key feature of models like BERT and other transformers that produce contextual embeddings.\nConsider the following two sentences:\n\n1 - \"My father is a bank teller\", \n\n2 - \"The river bank has been polluted.\"\n\nIn these two sentences, static word embeddings like word2vec will give the word \"bank\" the same vector.\n\nDynamic embeddings (from a BERT kr a DNN in general) will give two different vectors for the same word because it has two different contexts."
+        },
+        {
+          "type": "code",
+          "code": "Sentence 1:\n            \"He swung the __bat__ and hit a home run.\"\n\n                   +--------------------------+\n                   |  swung     hit    home   |\n                   |          __bat__         |\n                   |                  run     |\n                   +--------------------------+\n                              |\n                          [bat 🏏]\n                         (Sports Equipment)\n\n\nSentence 2:\n            \"The __bat__ flew silently through the night sky.\"\n\n                   +--------------------------+\n                   |  flew   silently  night  |\n                   |          __bat__         |\n                   |                  sky     |\n                   +--------------------------+\n                              |\n                          [bat 🦇]\n                         (Nocturnal Animal)\n\nIn traditional embeddings, the word \"bat\" would have a single representation regardless of context.\n\nContextual embeddings generate different vector representations for \"bat\" based on the words surrounding it.\n"
+        },
+        {
+          "type": "header",
+          "text": "Attention Mechanism\""
+        },
+        {
+          "type": "text",
+          "text": "An attention mechanism is a technique used in machine learning and deep learning models to selectively focus on specific parts of the input data when making predictions. This mechanism is inspired by the human ability to concentrate on relevant information while ignoring less important details. It allows models to assign varying levels of importance or weights to different elements of the input data, enhancing their ability to capture essential patterns and dependencies."
+        },
+        {
+          "type": "code",
+          "code": "\nInput Sequence:           x₁       x₂       x₃       ...       xₙ\n\n                                  ↓        ↓        ↓                   ↓\n                              +-------+-------+-------+   ...   +-------+\n                              |       |       |       |         |       |\n                              |  h₁   |  h₂   |  h₃   |         |  hₙ   |\n                              |       |       |       |         |       |\n                              +-------+-------+-------+         +-------+\n                                    ↘       ↘      ↘                  ↘\n                                      ↘       ↘      ↘                  ↘            \n                                        +----------------+         +----------------+\n                                        |                |         |                |\n                                        | Attention Weights αₖᵢ    |                |\n                                        |                |         |                |\n                                        +----------------+         +----------------+\n                                                 ↓                          ↓\n                                            +----------+               +----------+\n                                            | Context  |               | Context  |\n                                            |  Vector  |               |  Vector  |\n                                            |    c₁    |               |    cₙ    |\n                                            +----------+               +----------+\n                                                 ↓                          ↓\n                                            +----------+               +----------+\n                                            |  Output  |               |  Output  |\n                                            |   y₁     |               |   yₙ     |\n                                            +----------+               +----------+\n\n"
+        },
+        {
+          "type": "header",
+          "text": "Seq2Seq Models"
+        },
+        {
+          "type": "text",
+          "text": "Seq2Seq Models are a type of machine learning architecture designed to transform input sequences into output sequences. They are widely used in natural language processing tasks such as machine translation, text summarization, and speech recognition. The name “seq2seq” comes from the fact that these models are trained to convert a sequence of input data (such as a sentence in one language) into a sequence of output data (such as a sentence in another language). Seq2Seq models typically consist of two main components: an encoder and a decoder. The encoder processes the input sequence and generates a fixed-length representation of the input data, which is then passed to the decoder to generate the output sequence."
+        },
+        {
+          "type": "code",
+          "code": "\n[ Input Sequence ]\n   x₁ → x₂ → x₃ → ... → xₙ\n        |\n        v\n+--------------------+\n|      Encoder       |\n| (RNN/LSTM/GRU)     |\n+---------+----------+\n          |\n          v\n   [ Context Vector ]\n          |\n          v\n+---------+----------+\n|      Decoder       |\n| (RNN/LSTM/GRU)     |\n          |\n      y₁ → y₂ → y₃ → ... → yₘ\n[ Output Sequence ]  \n\n\n"
+        },
+        {
+          "type": "header",
+          "text": "Limitations of Seq2Seq Models"
+        },
+        {
+          "type": "text",
+          "text": "Seq2Seq (Sequence-to-Sequence) models are powerful tools for a variety of tasks, such as translation, summarization, and text generation. However, they do have several limitations like the memory of RNNs can diminish over long sequences, leading to a loss of crucial information from earlier parts of the sequence. They suffer from Vanishing Gradient issue. Vanishing gradients occur when the gradients of the error with respect to the network’s parameters become very small, making it difficult for the network to learn long-term dependencies.\n            Early mistakes during the decoding phase can propagate through the sequence, affecting the quality of the entire output.\n            "
+        }
+      ]
+    }
+  },
+  {
+    "id": "7d297e1c-8113-5bfa-bd7c-b63112e66e20",
+    "slug": "neural-nets",
+    "title": "Neural Netrwork and Types",
+    "dateISO": "2026-05-16",
+    "category": "Article",
+    "summary": "A neural network is a computational model inspired by the structure and function of the human brain, primarily used in machine learning and artificial intelligence. It consists of interconnected nodes, or artificial n...",
+    "body": "A neural network is a computational model inspired by the structure and function of the human brain, primarily used in machine learning and artificial intelligence. It consists of interconnected nodes, or artificial neurons, organized into layers: an input layer, one or more hidden layers, and an output layer. Each node processes input data and transmits outputs to other nodes, mimicking how biological neurons operate in the brain.",
+    "imageVariant": 5,
+    "richDoc": {
+      "header": "Neural Netrwork and Types",
+      "text": "A neural network is a computational model inspired by the structure and function of the human brain, primarily used in machine learning and artificial intelligence. It consists of interconnected nodes, or artificial neurons, organized into layers: an input layer, one or more hidden layers, and an output layer. Each node processes input data and transmits outputs to other nodes, mimicking how biological neurons operate in the brain.",
+      "contents": [
+        {
+          "type": "code",
+          "code": "[Input Layer] → [Hidden Layer(s)] → [Output Layer]"
+        },
+        {
+          "type": "image",
+          "src": "./Illustration-of-a-neural-net.png"
+        },
+        {
+          "type": "header",
+          "text": "Types of Neural Networks."
+        },
+        {
+          "type": "text",
+          "text": "Neural networks come in a variety of flavors, each with unique architectures and specializations. Some common types include:"
+        },
+        {
+          "type": "header",
+          "text": "1 - Feed-Forward Neural Network (FNNs) - The Basic"
+        },
+        {
+          "type": "text",
+          "text": "Feedforward neural networks (FNNs) are one of the first major developments in the field of neural networks.  It also became popular thanks to the discovery of the backpropagation algorithm by Geoff Hinton in 1990. They laid the groundwork for more complex architectures that followed. They are comprised of an input layer, a hidden layer or layers, and an output layer. These neural networks are also commonly referred to as MLPs(multi-layer perceptrons). In FFNs, data flows in one direction, from the input layer to the output layer, without any feedback loops. This makes them simple and easy to understand, but also limits their ability to handle complex tasks. "
+        },
+        {
+          "type": "header",
+          "text": "2 - Convolutional neural network (CNN) - The Vision Expert"
+        },
+        {
+          "type": "text",
+          "text": "A Convolutional Neural Network (CNN) is a type of artificial neural network designed for processing structured grid data, such as images. This concept was first presented by Yann le cun in 1998 via LeNet-5 for handwritten digit recognition. CNNs are particularly effective in computer vision tasks, where the goal is to recognize patterns and extract features from visual data."
+        },
+        {
+          "type": "header",
+          "text": "3 - Recurrent Neural Network (RNN) - The Sequence Master"
+        },
+        {
+          "type": "text",
+          "text": "The distinctive feature of looping connections in RNNs enables the network to maintain an internal memory or hidden state to capture dependencies and patterns. Recurrent Neural Networks (RNNs) stand out in the neural network landscape for their unique ability to process sequential data dynamically ideal for natural language processing (NLP) and time series analysis. What CNN means for images Recurrent Neural Networks are meant for text. RNNs can help us learn the sequential structure of text where each word is dependent on previous words, or sentences ideal for language translation, sentiment analysis, and text generation. (Though transformers have taken over here."
+        },
+        {
+          "type": "header",
+          "text": "3a - Long Short-Term Memory (LSTM) - The Memory Keeper"
+        },
+        {
+          "type": "text",
+          "text": "LSTMs are a specialized type of RNN designed to handle long-term dependencies better. They use gates to control what information is stored or discarded. They are a subclass of RNN, specialized in remembering information for extended periods (addressing the Vanishing Gradient Problem) by introducing various gates which regulate the cell state by adding or removing information from it. RNNs/LSTM have been predominantly used for various Language modeling tasks where the objective is to predict the next word given a stream of input Word or for tasks which have a sequential pattern to them."
+        },
+        {
+          "type": "header",
+          "text": "4 - Transformer - The generator"
+        },
+        {
+          "type": "text",
+          "text": "Transformers have become the DeFacto standard for any Natural Language Processing (NLP) task. Transformers revolutionized AI by replacing RNNs in natural language processing (NLP). Instead of processing data sequentially, they use an attention mechanism to analyze entire sentences at once, drastically improving efficiency. In the past, the LSTM and GRU architecture, along with the attention mechanism, used to be the State-of-the-Art approach for language modeling problems and translation systems. The main problem with these architectures is that they are recurrent in nature, and the runtime increases as the sequence length increases. That is why for smaller datasets, they do well, but larger data sets, they struggle. That is, these architectures take a sentence and process each word in a sequential way, so when the sentence length increases so does the whole runtime. Transformer, a model architecture first explained in the paper Attention is all you need, omits the recurrence and instead relies entirely on an attention mechanism to draw global dependencies between input and output simultaneously over the entire dataset. And that makes it fast, more accurate and the architecture of choice to solve various problems in the NLP domain working with more words and more complex text-based tasks."
+        },
+        {
+          "type": "image",
+          "src": "./transformer.png"
+        },
+        {
+          "type": "header",
+          "text": "5 - Generative Adversarial Network (GAN) - The Creator"
+        },
+        {
+          "type": "text",
+          "text": "Back in 2014, Ian Goodfellow and his colleagues unveiled Generative Adversarial Networks (GANs), a revolutionary class of AI models. GANs operate on this brilliant idea of adversarial training, where two neural networks—the generator and the discriminator—engage in a creative face-off to produce ultra-realistic synthetic data. The generator is like an artist, striving to create data that's indistinguishable from the real thing. The discriminator acts as the critic, evaluating data and determining whether it's genuine or generated. This intense back-and-forth keeps rolling until the generator's data becomes so convincing that the discriminator can't tell the difference anymore—they reach an equilibrium. At this point, the generator is producing synthetic data that's virtually indistinguishable from reality, marking a significant breakthrough in creating lifelike data through AI."
+        },
+        {
+          "type": "header",
+          "text": "5a - Diffusion Models - The Future"
+        },
+        {
+          "type": "text",
+          "text": "While diffusion models and Generative Adversarial Networks (GANs) are fundamentally different in their architectures and training methods, they overlap significantly in their applications. Inspired by physical diffusion, these models gradually transform random noise into structured outputs like images, videos, or molecular designs. When generating new data, the model starts with pure noise and iteratively refines it into a coherent result. Diffusion models have already shown transformative potential in applications such as image synthesis, where they power systems like Stable Diffusion to create stunningly realistic visuals from textual prompts."
+        },
+        {
+          "type": "code",
+          "code": "[Original Data]\n       |\n   +---+---+\n   |       |\n[Add Noise]  (Forward Diffusion)\n   |       |\n   v       v\n[Noisy Data] --- (Repeat over many steps) ---> [Pure Noise]\n       |\n       v\n[Start Here for Generation]\n       |\n[Remove Noise]  (Reverse Diffusion)\n       |\n   +---+---+\n   |       |\n   v       v\n[Recovered Data] --- (Repeat over many steps) ---> [Generated Data]\n"
+        },
+        {
+          "type": "link",
+          "href": "#/transformers",
+          "text": "Transformers"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.sabrepc.com/blog/Deep-Learning-and-AI/6-types-of-neural-networks-to-know-about?srsltid=AfmBOor9CiJx48xp96rlwaliVJYjWMxVbX_LkMnkaYDsPlXDIh-9aU1I",
+          "text": "types-of-neural-networks-to-know-about"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.ibm.com/think/topics/neural-networks",
+          "text": "neural-networks"
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.arunangshudas.com/6-types-of-neural-networks-you-should-know/",
+          "text": "types-of-neural-networks-you-should-know"
+        }
+      ]
+    }
+  },
+  {
+    "id": "3cd25f56-41aa-5ece-be46-c2c57117d00d",
+    "slug": "cuda",
+    "title": "CUDA (Compute Unified Device Architecture)",
+    "dateISO": "2026-05-15",
+    "category": "Article",
+    "summary": "CUDA (Compute Unified Device Architecture) is a parallel computing platform developed by NVIDIA. It allows programmers to utilize the GPU (Graphics Processing Unit — GPU cores) for performing computational tasks using...",
+    "body": "CUDA (Compute Unified Device Architecture) is a parallel computing platform developed by NVIDIA. It allows programmers to utilize the GPU (Graphics Processing Unit — GPU cores) for performing computational tasks using programming languages such as C and C++.\n    CUDA is a platform and programming model for CUDA-enabled GPUs. The platform exposes GPUs for general purpose computing. CUDA provides C/C++ language extension and APIs for programming and managing GPUs. \n The CUDA platform is a software layer that gives direct access to the GPU's virtual instruction set and parallel computational elements, for the execution of compute kernels.\nIn CUDA programming, both CPUs and GPUs are used for computing. Typically, we refer to CPU and GPU system as host and device, respectively. CPUs and GPUs are separated platforms with their own memory space. Typically, we run serial workload on CPU and offload parallel computation to GPUs.",
+    "imageVariant": 3,
+    "richDoc": {
+      "header": "CUDA (Compute Unified Device Architecture)",
+      "text": "CUDA (Compute Unified Device Architecture) is a parallel computing platform developed by NVIDIA. It allows programmers to utilize the GPU (Graphics Processing Unit — GPU cores) for performing computational tasks using programming languages such as C and C++.\n    CUDA is a platform and programming model for CUDA-enabled GPUs. The platform exposes GPUs for general purpose computing. CUDA provides C/C++ language extension and APIs for programming and managing GPUs. \n The CUDA platform is a software layer that gives direct access to the GPU's virtual instruction set and parallel computational elements, for the execution of compute kernels.\nIn CUDA programming, both CPUs and GPUs are used for computing. Typically, we refer to CPU and GPU system as host and device, respectively. CPUs and GPUs are separated platforms with their own memory space. Typically, we run serial workload on CPU and offload parallel computation to GPUs.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Cuda Programming Model"
+        },
+        {
+          "type": "text",
+          "text": "The CUDA programming model is a heterogeneous model in which both the CPU and GPU are used. In CUDA, the host refers to the CPU and its memory, while the device refers to the GPU and its memory. Code run on the host can manage memory on both the host and device, and also launches kernels which are functions executed on the device. These kernels are executed by many GPU threads in parallel.\nGiven the heterogeneous nature of the CUDA programming model, a typical sequence of operations for a CUDA C program is:"
+        },
+        {
+          "type": "code",
+          "code": "- Declare and allocate host and device memory.\n- Initialize host data.\n- Transfer data from the host to the device.\n- Execute one or more kernels.\n- Transfer results from the device to the host."
+        },
+        {
+          "type": "image",
+          "src": "./cuda-progrma.png"
+        },
+        {
+          "type": "header",
+          "text": "Nvidia CUDA Compiler (NVCC)"
+        },
+        {
+          "type": "text",
+          "text": "Nvidia CUDA Compiler (NVCC) is a compiler by Nvidia intended for use with CUDA. It is proprietary software."
+        },
+        {
+          "type": "image",
+          "src": "./NVCC.svg"
+        },
+        {
+          "type": "header",
+          "text": "Overview of how NVCC works"
+        },
+        {
+          "type": "code",
+          "code": "- Code Analysis: NVCC analyzes the source code to identify the device (GPU) and host (CPU) code sections.\n- Separation of Host and Device Code: NVCC separates the host code, which runs on the CPU, from the device code, which will be executed on the GPU. \n- Compilation and Optimization: NVCC compiles the host code using a standard CPU compiler, such as GCC or MSVC, while it compiles the device code using the CUDA compiler provided by NVIDIA.\n- GPU-specific Code Generation: NVCC generates GPU-specific machine code (PTX — Parallel Thread Execution) that represents the device code. This code is not directly executable on the GPU but serves as an intermediate representation.\n- PTX Translation and Optimization: NVCC translates the PTX code into GPU-specific machine code (SASS — Scalable Assembly) using the NVIDIA GPU driver.\n- Linking: NVCC links the host and device code together to create a single executable."
+        },
+        {
+          "type": "header",
+          "text": "Hello World in CUDA"
+        },
+        {
+          "type": "code",
+          "code": "// hello_world.cu\n\n#include <stdio.h>\n\n__global__ void hello_world_kernel()\n{\n    printf(\"Hello GPU World!\n\");\n}\n\nint main()\n{\n    hello_world_kernel <<<1,5>>>();\n    return 0;\n}\n"
+        },
+        {
+          "type": "header",
+          "text": "Compilaion and Execution"
+        },
+        {
+          "type": "code",
+          "code": "\n// CUDA program names must end in .cu\nnvcc hello_world.cu -o hello_world // Compile the program\n./hello_world // Execute the program\n"
+        },
+        {
+          "type": "header",
+          "text": "Host vs Device code"
+        },
+        {
+          "type": "text",
+          "text": "CUDA calls code that is slated to run on the CPU host code, and functions that are bound for the GPU device code. You can tell the two of them apart by looking at the function signatures; device code has the __global__ or __device__ keyword at the beginning of the function, while host code has no such qualifier. It is after all supposed to run on the CPU so having a mandatory qualifier at the beginning when the rest of the internet is compiling without any at all doesn't make much sense. Sometimes you will equivalently see __host__, but this is an optional keyword.\nWhen you use __device__ before a variable, you are making a variable that exists in what's capled the global memory space of the GPU, which can be accessed directly from threads in all blocks, and is accessible to threads in all blocks and the host using special CUDA functions that can copy variables to different places (these are latency-heavy operations though, so they should only be used suring times when performence is not necessary, such as the beginning and end of a program).\nOne copy of global memory-bound variables exist per GPU.\nThere is also the __host__ keyword. Equivalent to not using any keyword at all, this defines a plain-old C/C++ function. And finally, using __host__ __device__ together enables functions to run on both the CPU and GPU.\nHost code does not wait for completion of kernel."
+        },
+        {
+          "type": "subHeader",
+          "text": "__global__"
+        },
+        {
+          "type": "text",
+          "text": "The major difference between C and CUDA implementation is __global__ specifier and <<<...>>> syntax. The __global__ specifier indicates a function that runs on device (GPU). Such function can be called through host code and is also known as \"kernels\"."
+        },
+        {
+          "type": "subHeader",
+          "text": "__host__"
+        },
+        {
+          "type": "text",
+          "text": "__host__ keyword is optional and its equivalent to not using any keyword at all, this defines a plain-old C/C++ function."
+        },
+        {
+          "type": "subHeader",
+          "text": "__host__ __device__"
+        },
+        {
+          "type": "text",
+          "text": "Using __host__ __device__ together enables functions to run on both the CPU and GPU."
+        },
+        {
+          "type": "subHeader",
+          "text": "device vs global"
+        },
+        {
+          "type": "text",
+          "text": "device functions can be called only from the device, and it is executed only in the device.\nglobal functions can be called from the host, and it is executed in the device.\nTherefore, you call device functions from kernels functions, and you don't have to set the kernel settings. You can also \"overload\" a function, e.g : you can declare void foo(void) and device foo (void), then one is executed on the host and can only be called from a host function. The other is executed on the device and can only be called from a device or kernel function."
+        },
+        {
+          "type": "subHeader",
+          "text": "Kernels"
+        },
+        {
+          "type": "text",
+          "text": "Functions that run on GPU."
+        },
+        {
+          "type": "subHeader",
+          "text": "<<<...>>>"
+        },
+        {
+          "type": "text",
+          "text": "When a kernel is called, its execution configuration is provided through <<<...>>> syntax, e.g. cuda_hello<<<1,1>>>(). In CUDA terminology, this is called \"kernel launch\"."
+        },
+        {
+          "type": "header",
+          "text": "Vector Additional in CUDA - Serial"
+        },
+        {
+          "type": "code",
+          "code": "// cuda_vector_add_serial.cu\n\n#include <stdio.h>\n\n#define N 10000000\n\n__global__ void vector_add(float *out, float *a, float *b, int n) {\n    for(int i = 0; i < n; i++){\n        out[i] = a[i] + b[i];\n    }\n}\n\nint main(){\n    // Host - Variables\n    float *a, *b, *out;\n\n    // Device - Variables\n    float *d_a, *d_b, *d_out;\n\n    // Host - Allocate memory\n    a   = (float*)malloc(sizeof(float) * N);\n    b   = (float*)malloc(sizeof(float) * N);\n    out = (float*)malloc(sizeof(float) * N);\n\n    // Device - Allocate memory\n    cudaMalloc((void**)&d_a, sizeof(float) * N);\n    cudaMalloc((void**)&d_b, sizeof(float) * N);\n    cudaMalloc((void**)&d_out, sizeof(float) * N);\n\n    // Initialize array\n    for(int i = 0; i < N; i++){\n        a[i] = 1.0f; b[i] = 2.0f;\n    }\n\n    // Transfer data from host to device memory\n    cudaMemcpy(d_a, a, sizeof(float) * N, cudaMemcpyHostToDevice);\n    cudaMemcpy(d_b, b, sizeof(float) * N, cudaMemcpyHostToDevice);\n\n    // Main function\n    vector_add<<<1,1>>>(d_out, d_a, d_b, N);\n\n    // Copy data from device array d_C to host array C\n    cudaMemcpy(out, d_out, N, cudaMemcpyDeviceToHost);\n\n     // Host - Free  memory\n     free(a);\n     free(b);\n     free(out);\n \n     // Device - Free memory\n     cudaFree(d_a);\n     cudaFree(d_b);\n     cudaFree(d_out);\n\n    printf(\"\n---------------------------\n\");\n    printf(\"__SUCCESS__\n\");\n    printf(\"---------------------------\n\");\n}\n\n// Still not run program in parallel\n"
+        },
+        {
+          "type": "header",
+          "text": "Device memory management"
+        },
+        {
+          "type": "text",
+          "text": "CPU and GPUs are separate entities. Both have their own memory space. CPU cannot directly access GPU memory, and vice versa. In CUDA terminology, CPU memory is called host memory and GPU memory is called device memory. Pointers to CPU and GPU memory are called host pointer and device pointer, respectively.\nFor data to be accessible by GPU, it must be presented in the device memory. CUDA provides APIs for allocating device memory and data transfer between host and device memory."
+        },
+        {
+          "type": "subHeader",
+          "text": "Allocating device memory"
+        },
+        {
+          "type": "text",
+          "text": "CUDA provides several functions for allocating device memory. The most common ones are cudaMalloc() and cudaFree(). The syntax for both functions are as follows:"
+        },
+        {
+          "type": "code",
+          "code": "\ncudaMalloc(void **devPtr, size_t count);\ncudaFree(void *devPtr);\n"
+        },
+        {
+          "type": "text",
+          "text": "cudaMalloc() allocates memory of size count in the device memory and updates the device pointer devPtr to the allocated memory. cudaFree() deallocates a region of the device memory where the device pointer devPtr points to. They are comparable to malloc() and free() in C, respectively."
+        },
+        {
+          "type": "subHeader",
+          "text": "Memory transfer"
+        },
+        {
+          "type": "text",
+          "text": "Transfering data between host and device memory can be done through cudaMemcpy function, which is similar to memcpy in C. The syntax of cudaMemcpy is as follow:"
+        },
+        {
+          "type": "code",
+          "code": "\ncudaMemcpy(void *dst, void *src, size_t count, cudaMemcpyKind kind);\n"
+        },
+        {
+          "type": "text",
+          "text": "The function copy a memory of size count from src to dst. kind indicates the direction. For typical usage, the value of kind is either cudaMemcpyHostToDevice or cudaMemcpyDeviceToHost."
+        },
+        {
+          "type": "header",
+          "text": "CPU vs GPU"
+        },
+        {
+          "type": "text",
+          "text": "This difference in capabilities between the GPU and the CPU exists because they are designed with different goals in mind. While the CPU is designed to excel at executing a sequence of operations, called a thread, as fast as possible and can execute a few tens of these threads in parallel, the GPU is designed to excel at executing thousands of them in parallel (amortizing the slower single-thread performance to achieve greater throughput).\nThe GPU is designed to handle a large number of threads in parallel, and it is optimized for throughput. The CPU is designed to handle a smaller number of threads in parallel, and it is optimized for latency.\nBecause graphics cards are actually really slow, and can only do really simple operations like math. The benefit of graphics cards comes from it being able to do thousands of these simple things at the same time, such as processing thousands of polygons/pixels in parallel.\nThe GPU is specialized for highly parallel computations and therefore designed such that more transistors are devoted to data processing rather than data caching and flow control.\nDevoting more transistors to data processing, for example, floating-point computations, is beneficial for highly parallel computations; the GPU can hide memory access latencies with computation, instead of relying on large data caches and complex flow control to avoid long memory access latencies, both of which are expensive in terms of transistors.\n"
+        },
+        {
+          "type": "image",
+          "src": "./cpu-gpu-1.png"
+        },
+        {
+          "type": "header",
+          "text": "Heterogenous Computing"
+        },
+        {
+          "type": "text",
+          "text": "In general, an application has a mix of parallel parts and sequential parts, so systems are designed with a mix of GPUs and CPUs in order to maximize overall performance. Applications with a high degree of parallelism can exploit this massively parallel nature of the GPU to achieve higher performance than on the CPU.\nModern high-end HPC systems are heterogenous: They combine CPUs and GPUs, mapping tasks to the most suitable Processing Unit.\nA typical heterogeneous compute node consists of two multicore CPU sockets and two or more many-core GPUs GPUs operate in conjunction with a CPU-based host typically through a PCI-Express bus."
+        },
+        {
+          "type": "image",
+          "src": "./cpu-gpu-2.png"
+        },
+        {
+          "type": "header",
+          "text": "Blocks, Grids, and Threads"
+        },
+        {
+          "type": "text",
+          "text": "When a kernel is launched, CUDA generates a grid of threads that are organized in a three-dimensional hierarchy.\nEach grid is organized into an array of thread blocks or blocks. Each block can contain up to 1,024 threads."
+        },
+        {
+          "type": "image",
+          "src": "./cuda-threads.png"
+        },
+        {
+          "type": "reference",
+          "href": "https://docs.nvidia.com/cuda/cuda-c-programming-guide/",
+          "text": "The Benefits of Using GPUs"
+        },
+        {
+          "type": "reference",
+          "href": "https://cuda-tutorial.readthedocs.io/en/latest/tutorials/tutorial01/",
+          "text": "cuda-tutorial"
+        },
+        {
+          "type": "reference",
+          "href": "https://dev.to/zenulabidin/an-overview-of-cuda-part-2-host-and-device-code-69d",
+          "text": "host-and-device-code"
+        }
+      ]
+    }
+  },
+  {
+    "id": "1972fa15-960d-5425-a9ba-be07d4b368c6",
+    "slug": "cap",
+    "title": "CAP Theorem: Why You Can't Have It All",
+    "dateISO": "2026-05-14",
+    "category": "Article",
+    "summary": "The CAP theorem says that a distributed system can deliver only two of three desired characteristics: consistency, availability and partition tolerance (the \"C,\" \"A\" and \"P\" in CAP). The CAP theorem is also called Bre...",
+    "body": "The CAP theorem says that a distributed system can deliver only two of three desired characteristics:\nconsistency, availability and partition tolerance (the \"C,\" \"A\" and \"P\" in CAP).\nThe CAP theorem is also called Brewer’s Theorem, because it was first advanced by Professor Eric A. Brewer during a talk he gave on distributed computing in 2000. Two years later, MIT professors Seth Gilbert and Nancy Lynch published a proof of “Brewer’s Conjecture.”",
+    "imageVariant": 4,
+    "richDoc": {
+      "header": "CAP Theorem: Why You Can't Have It All",
+      "text": "The CAP theorem says that a distributed system can deliver only two of three desired characteristics:\nconsistency, availability and partition tolerance (the \"C,\" \"A\" and \"P\" in CAP).\nThe CAP theorem is also called Brewer’s Theorem, because it was first advanced by Professor Eric A. Brewer during a talk he gave on distributed computing in 2000. Two years later, MIT professors Seth Gilbert and Nancy Lynch published a proof of “Brewer’s Conjecture.”",
+      "contents": [
+        {
+          "type": "image",
+          "src": "./cap.png"
+        },
+        {
+          "type": "header",
+          "text": "Consistentcy"
+        },
+        {
+          "type": "text",
+          "text": "Every read request receives the most recent write or an error when consistency can’t be guaranteed. I n oter words data should be always uptodate on all nodes."
+        },
+        {
+          "type": "header",
+          "text": "Availability"
+        },
+        {
+          "type": "text",
+          "text": "Every request receives a non-error response, even when nodes are down or unavailable."
+        },
+        {
+          "type": "header",
+          "text": "Partition tolerance"
+        },
+        {
+          "type": "text",
+          "text": "The system continues to operate despite the loss of an arbitrary number of messages between nodes.\n            A network partition occurs when a failure in the communication links within a distributed system results in the network splitting into two or more separate subnetworks."
+        },
+        {
+          "type": "header",
+          "text": "Summary"
+        },
+        {
+          "type": "text",
+          "text": "Most distributed systems have to tolerate network failures, and thus, network partitioning has to be allowed. This means that these workloads have to make a choice between consistency and availability when a network partition occurs. If the workload chooses availability, then it always returns a response, but with potentially inconsistent data. If it chooses consistency, then during a network partition it would return an error since the workload can’t be sure about the consistency of the data."
+        },
+        {
+          "type": "image",
+          "src": "./network-partition.jpg"
+        },
+        {
+          "type": "image",
+          "src": "./cap-2.png"
+        },
+        {
+          "type": "header",
+          "text": "CAP theorem trade-offs"
+        },
+        {
+          "type": "text",
+          "text": "The CAP theorem has three system configurations: CP, AP, and CA."
+        },
+        {
+          "type": "subHeader",
+          "text": "CP Systems (Consistency and Partition Tolerance)"
+        },
+        {
+          "type": "text",
+          "text": "CP systems prioritize Consistency and Partition Tolerance over Availability. In these systems, when a network partition occurs, they choose to maintain strong consistency even if it means sacrificing availability temporarily. This means that during a partition, updates to the system may be blocked until consistency is achieved or the partition is resolved.\n            CP systems are typically used in scenarios where data consistency is crucial, such as financial applications or systems that require strict synchronization. They are willing to sacrifice availability during network partitions to ensure that all nodes have the same consistent view of the data."
+        },
+        {
+          "type": "subHeader",
+          "text": "AP Systems (Availability and Partition Tolerance)"
+        },
+        {
+          "type": "text",
+          "text": "AP systems prioritize Availability and Partition Tolerance over strong Consistency. These systems choose to remain available and provide responses to user requests even during network partitions, accepting that different nodes may have temporarily inconsistent views of the data.\n          AP systems are often used in scenarios where high availability is essential, such as real-time collaboration applications or content delivery networks (CDNs). They prioritize providing a responsive service even if it means accepting eventual consistency and allowing temporary inconsistencies across nodes."
+        },
+        {
+          "type": "subHeader",
+          "text": "CA Systems (Consistency and Availability)"
+        },
+        {
+          "type": "text",
+          "text": "CA systems aim to achieve both Consistency and Availability, but they sacrifice Partition Tolerance. In other words, they prioritize maintaining a consistent view of the data and providing responses to user requests even when there are no network partitions.\n          CA systems are typically deployed in environments with strong network reliability and low chances of network partitions. They are well-suited for applications where data consistency and high availability are critical, such as traditional single-site databases."
+        },
+        {
+          "type": "reference",
+          "href": "https://factor-bytes.com/2023/07/22/understanding-cap-theorem-balancing-consistency-availability-and-partition-tolerance-in-distributed-systems/",
+          "text": "Understanding CAP Theorem"
+        },
+        {
+          "type": "reference",
+          "href": "https://docs.aws.amazon.com/whitepapers/latest/availability-and-beyond-improving-resilience/cap-theorem.html",
+          "text": "availability-and-beyond-improving-resilience"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.youtube.com/watch?v=gkg-FAEXIkY",
+          "text": "Friendly Intro To the CAP Theorem"
+        }
+      ]
+    }
+  },
+  {
+    "id": "3a711e41-fb74-5dc6-92b9-90cb9ca25f25",
+    "slug": "gguf",
+    "title": "What is GGUF Format?",
+    "dateISO": "2026-05-13",
+    "category": "Article",
+    "summary": "GGUF - GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers. GGUF files...",
+    "body": "GGUF - GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers.\n    GGUF files contain all the information needed to load a model, including configuration attributes, tokenizer vocabulary, and tensors.\n    GGUF was developed by @ggerganov who is also the developer of llama.cpp, a popular C/C++ LLM inference framework.GGUF is a new format introduced by the llama.cpp team on August 21st 2023. It is a replacement for GGML, which is no longer supported by llama.cpp.",
+    "imageVariant": 2,
+    "richDoc": {
+      "header": "What is GGUF Format?",
+      "text": "GGUF - GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers.\n    GGUF files contain all the information needed to load a model, including configuration attributes, tokenizer vocabulary, and tensors.\n    GGUF was developed by @ggerganov who is also the developer of llama.cpp, a popular C/C++ LLM inference framework.GGUF is a new format introduced by the llama.cpp team on August 21st 2023. It is a replacement for GGML, which is no longer supported by llama.cpp.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "GGUF vs GGML"
+        },
+        {
+          "type": "text",
+          "text": "GGML was an initial effort to create quantized LLMs, but it has been replaced by GGUF. GGML and GGUF are the same thing, GGUF is the new version that adds more data about the model so it's easy to support multiple architectures, and also includes prompt templates. These can run CPU only, be partially or fully offloaded to a GPU."
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/docs/hub/en/gguf",
+          "text": "GGUF format"
+        }
+      ]
+    }
+  },
+  {
+    "id": "25069398-f304-534c-8736-94ade2e59c5e",
+    "slug": "create-lm",
+    "title": "What is GGUF Format?",
+    "dateISO": "2026-05-12",
+    "category": "Article",
+    "summary": "GGUF - GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers. GGUF files...",
+    "body": "GGUF - GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers.\n    GGUF files contain all the information needed to load a model, including configuration attributes, tokenizer vocabulary, and tensors.\n    GGUF was developed by @ggerganov who is also the developer of llama.cpp, a popular C/C++ LLM inference framework.GGUF is a new format introduced by the llama.cpp team on August 21st 2023. It is a replacement for GGML, which is no longer supported by llama.cpp.",
+    "imageVariant": 7,
+    "richDoc": {
+      "header": "What is GGUF Format?",
+      "text": "GGUF - GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers.\n    GGUF files contain all the information needed to load a model, including configuration attributes, tokenizer vocabulary, and tensors.\n    GGUF was developed by @ggerganov who is also the developer of llama.cpp, a popular C/C++ LLM inference framework.GGUF is a new format introduced by the llama.cpp team on August 21st 2023. It is a replacement for GGML, which is no longer supported by llama.cpp.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "GGUF vs GGML"
+        },
+        {
+          "type": "text",
+          "text": "GGML was an initial effort to create quantized LLMs, but it has been replaced by GGUF. GGML and GGUF are the same thing, GGUF is the new version that adds more data about the model so it's easy to support multiple architectures, and also includes prompt templates. These can run CPU only, be partially or fully offloaded to a GPU."
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/docs/hub/en/gguf",
+          "text": "GGUF format"
+        }
+      ]
+    }
+  },
+  {
+    "id": "aa573325-56a9-54ee-a5ec-0b247c49cb2d",
+    "slug": "prompt",
+    "title": "How to Write Better Prompts?",
+    "dateISO": "2026-05-11",
+    "category": "Article",
+    "summary": "Prompt engineering is the process of writing prompts to maximize the quality and relevance of the response.",
+    "body": "Prompt engineering is the process of writing prompts to maximize the quality and relevance of the response.",
+    "imageVariant": 6,
+    "richDoc": {
+      "header": "How to Write Better Prompts?",
+      "text": "Prompt engineering is the process of writing prompts to maximize the quality and relevance of the response.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Elements of Prompts"
+        },
+        {
+          "type": "image",
+          "src": "prompts-elements.png"
+        },
+        {
+          "type": "header",
+          "text": "Should we be polite to LLMs?"
+        },
+        {
+          "type": "text",
+          "text": "Study finds that the politeness of prompts can significantly affect LLM performance. \n                This phenomenon is thought to reflect human social behavior. The study notes that using impolite prompts can result in the low performance of LLMs, which may lead to increased bias, incorrect answers, or refusal of answers. However, highly respectful prompts do not always lead to better results. \n                In most conditions, moderate politeness is better, but the standard of moderation varies by languages and LLMs. In particular, models trained in a specific language are susceptible to the politeness of that language.\n                Best working prompt with gpt 4 is -"
+        },
+        {
+          "type": "code",
+          "code": "Can you please analyze this sentence? Only have to answer with one of (Positive Neutral Negative).\n                    No need for any reasons."
+        },
+        {
+          "type": "text",
+          "text": "Be polite but don't overdo it. Experiment with promt variations like below and check the result -"
+        },
+        {
+          "type": "code",
+          "code": "Can you please analyze this sentence? Only have to answer with one of (Positive Neutral Negative). No need for any reasons."
+        },
+        {
+          "type": "code",
+          "code": "Please analyze this sentence. Please answer with (Positive Neutral Negative) only, without any reasons."
+        },
+        {
+          "type": "code",
+          "code": "Analyze this sentence. Answer with one of (Positive Neutral Negative) only. Don’t give any reasons."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.prompthub.us/blog/how-polite-should-we-be-when-prompting-llms",
+          "text": "Should We Respect LLMs?"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.youtube.com/watch?v=ndicjPdBZmU",
+          "text": "Does saying please and thanks effect LLM output quality?"
+        },
+        {
+          "type": "header",
+          "text": "Role Play Prompting"
+        },
+        {
+          "type": "text",
+          "text": "When we ask llm to assume a certain Role its called Role Prompting, Role Play Prompting or Persona Prompting.             This can be used to change the tone, style, and even the depth of the information presented.\n                Most of these prompts start with: “I want you to act as …” or “You’re a …”\n                If using a persona, it should be specific and detailed.\n\n                This is useful for on open-ended tasks like creative writing and content generation."
+        },
+        {
+          "type": "code",
+          "code": "You are a journalist writing a story about a new technology that has been developed to help people with disabilities. Write a 500-word article about it."
+        },
+        {
+          "type": "reference",
+          "href": "https://learnprompting.org/docs/basics/prompt_structure",
+          "text": "learnprompting.org"
+        }
+      ]
+    }
+  },
+  {
+    "id": "b1aa08b9-cff6-5f5d-af50-77e2509f4f35",
+    "slug": "function-call",
+    "title": "What is Function Calling?",
+    "dateISO": "2026-05-10",
+    "category": "Article",
+    "summary": "Tool/Function calling allows a model to respond to a given prompt by generating output that matches a user-defined schema. While the name implies that the model is performing some action, this is actually not the case...",
+    "body": "Tool/Function calling allows a model to respond to a given prompt by generating output that matches a user-defined schema. While the name implies that the model is performing some action, this is actually not the case! The model is merely coming up with the arguments to a tool, and actually running a tool (or not) is up to the user.",
+    "imageVariant": 1,
+    "richDoc": {
+      "header": "What is Function Calling?",
+      "text": "Tool/Function calling allows a model to respond to a given prompt by generating output that matches a user-defined schema. While the name implies that the model is performing some action, this is actually not the case! The model is merely coming up with the arguments to a tool, and actually running a tool (or not) is up to the user.",
+      "contents": [
+        {
+          "type": "reference",
+          "href": "https://js.langchain.com/v0.1/docs/modules/model_io/chat/function_calling",
+          "text": "Langchain Tool/function calling?"
+        },
+        {
+          "type": "reference",
+          "href": "https://platform.openai.com/docs/guides/function-calling",
+          "text": "OpenAi Function calling"
+        },
+        {
+          "type": "header",
+          "text": "When to use Function Calling?"
+        },
+        {
+          "type": "text",
+          "text": "If you want to extract output matching some schema from unstructured text, you could give the model an “extraction” tool that takes parameters matching the desired schema, then treat the generated output as your final result. If you actually do want to execute called tools, you can use the Tool Calling Agent."
+        },
+        {
+          "type": "header",
+          "text": "Ways to extract structured information from llm"
+        },
+        {
+          "type": "text",
+          "text": "There are 3 broad approaches for structured information extraction using LLMs - Tool/Function Calling, JSON Schema, Prompting."
+        },
+        {
+          "type": "header",
+          "text": "Tool/Function Calling"
+        },
+        {
+          "type": "text",
+          "text": "LLMs can structure output according to a given schema. Generally, this approach is the easiest to work with and is expected to yield good results."
+        },
+        {
+          "type": "header",
+          "text": "JSON Schema"
+        },
+        {
+          "type": "text",
+          "text": "This is similar to tool/function calling approach, except that the schema is provided as part of the prompt. Generally, our intuition is that this performs worse than a tool/function calling approach, especially for complex schemas, but you should verify for your own use case!"
+        },
+        {
+          "type": "header",
+          "text": "Prompting"
+        },
+        {
+          "type": "text",
+          "text": "LLMs that can follow instructions well can be instructed to generate text in a desired format.This approach can be used with LLMs that do not support JSON mode or tool/function calling modes. This approach is more broadly applicable, though may yield worse results."
+        },
+        {
+          "type": "header",
+          "text": "Format of Function/Tool Calling"
+        },
+        {
+          "type": "text",
+          "text": "LLms adopt different conventions for formatting tool schemas and tool calls."
+        },
+        {
+          "type": "code",
+          "code": "{\n  \"type\": \"function\",\n  \"function\": {\n    \"name\": \"get_weather\",\n    \"description\": \"Get current temperature for a given location.\",\n    \"parameters\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"location\": {\n          \"type\": \"string\",\n          \"description\": \"City and country e.g. Bogotá, Colombia\"\n        }\n      },\n      \"required\": [\n        \"location\"\n      ]\n    }\n  }\n}"
+        },
+        {
+          "type": "header",
+          "text": "How the output looks like after information extraction?"
+        },
+        {
+          "type": "code",
+          "code": "{\n  \"id\": \"call_12345xyz\",\n  \"type\": \"function\",\n  \"function\": {\n    \"name\": \"get_weather\",\n    \"arguments\": {\n      \"location\": \"Paris, France\"\n    }\n  }\n}"
+        }
+      ]
+    }
+  },
+  {
+    "id": "0c7a198c-1b9e-58a0-b25f-1044b97be7b0",
+    "slug": "dev-python",
+    "title": "How to start development in Python?",
+    "dateISO": "2026-05-09",
+    "category": "Article",
+    "summary": "Install Python extension for Visual Studio Code.",
+    "body": "Tooling, Libraries, Frameworks, and more.",
+    "imageVariant": 4,
+    "richDoc": {
+      "header": "How to start development in Python?",
+      "text": "Tooling, Libraries, Frameworks, and more.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Setup in Visual Studio Code"
+        },
+        {
+          "type": "text",
+          "text": "Install Python extension for Visual Studio Code."
+        },
+        {
+          "type": "reference",
+          "href": "https://marketplace.visualstudio.com/items?itemName=ms-python.python",
+          "text": "Python extension for Visual Studio Code"
+        },
+        {
+          "type": "header",
+          "text": "Virtual Environment"
+        },
+        {
+          "type": "text",
+          "text": "By default, any Python interpreter installed runs in its own global environment. For example, if you just run python, python3, or py at a new terminal (depending on how you installed Python), you're running in that interpreter's global environment. Any packages that you install or uninstall affect the global environment and all programs that you run within it.\n            A virtual environment is a built-in way to create an environment. A virtual environment creates a folder that contains a copy (or symlink) to a specific interpreter. When you install packages into a virtual environment it will end up in this new folder, and thus isolated from other packages used by other workspaces."
+        },
+        {
+          "type": "header",
+          "text": "Steps to start development in Python"
+        },
+        {
+          "type": "text",
+          "text": "Quick start guide to Python development in Visual Studio Code."
+        },
+        {
+          "type": "reference",
+          "href": "https://code.visualstudio.com/docs/python/environments",
+          "text": "Python development in Visual Studio Code"
+        },
+        {
+          "type": "header",
+          "text": "Managing Dependenncies"
+        },
+        {
+          "type": "text",
+          "text": "Poetry is a tool for dependency management and packaging in Python. It allows you to declare the libraries your project depends on and it will manage (install/update) them for you."
+        },
+        {
+          "type": "reference",
+          "href": "https://python-poetry.org/docs",
+          "text": "Poetry - Python dependency management"
+        },
+        {
+          "type": "header",
+          "text": "Project setup using Poetry"
+        },
+        {
+          "type": "text",
+          "text": "Steps to setup a new project using Poetry."
+        },
+        {
+          "type": "code",
+          "code": "poetry new poetry-demo"
+        },
+        {
+          "type": "header",
+          "text": "Optional - Create Virtual Environment Prgramatically"
+        },
+        {
+          "type": "code",
+          "code": "python -m venv <virtual-env-name like tutorial-env>"
+        },
+        {
+          "type": "header",
+          "text": "Activate Virtual Environment"
+        },
+        {
+          "type": "text",
+          "text": "Activating the virtual environment will change your shell’s prompt to show what virtual environment you’re using, and modify the environment so that running python will get you that particular version and installation of Python."
+        },
+        {
+          "type": "code",
+          "code": "tutorial-env\\Scripts\\activate"
+        },
+        {
+          "type": "reference",
+          "href": "https://docs.python.org/3/tutorial/venv.html",
+          "text": "venv - Creation of virtual environments"
+        },
+        {
+          "type": "header",
+          "text": "Installing Poetry"
+        },
+        {
+          "type": "code",
+          "code": "python -m pip install poetry"
+        },
+        {
+          "type": "header",
+          "text": "Installing Dependencies"
+        },
+        {
+          "type": "text",
+          "text": "To install the defined dependencies for your project, just run the install command."
+        },
+        {
+          "type": "code",
+          "code": "python -m poetry install"
+        }
+      ]
+    }
+  },
+  {
+    "id": "e9852e8a-3f83-5b3a-9135-171419119f08",
+    "slug": "dev-langchain",
+    "title": "How to start development in LangChain?",
+    "dateISO": "2026-05-08",
+    "category": "Article",
+    "summary": "To install LangChain run:",
+    "body": "Tooling, Libraries, Frameworks, and more.",
+    "imageVariant": 9,
+    "richDoc": {
+      "header": "How to start development in LangChain?",
+      "text": "Tooling, Libraries, Frameworks, and more.",
+      "contents": [
+        {
+          "type": "reference",
+          "href": "https://python.langchain.com/docs/tutorials",
+          "text": "Langchain Tutorials"
+        },
+        {
+          "type": "header",
+          "text": "Install LangChain"
+        },
+        {
+          "type": "text",
+          "text": "To install LangChain run:"
+        },
+        {
+          "type": "code",
+          "code": ".venv/Scripts/activate\npython -m pip install poetry\npoetry add langchain"
+        },
+        {
+          "type": "reference",
+          "href": "https://python.langchain.com/v0.1/docs/get_started/quickstart",
+          "text": "LangChain Quickstart"
+        },
+        {
+          "type": "header",
+          "text": "Working with DeepSeek using Llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "DeepSeek is a open-source AI model that matches OpenAI o1. The main goal of llama.cpp is to enable LLM inference with minimal setup and state-of-the-art performance on a wide range of hardware - locally and in the cloud."
+        },
+        {
+          "type": "header",
+          "text": "Llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "llama-cpp-python is a Python binding for llama.cpp. It is a C++ library for large language models (LLMs) that provides a simple and efficient interface for inference. It supports inference for many LLMs models, which can be accessed on Hugging Face.\n            Note: new versions of llama-cpp-python use GGUF model files."
+        },
+        {
+          "type": "reference",
+          "href": "https://python.langchain.com/docs/integrations/llms/llamacpp/",
+          "text": "Llama.cpp Documentation"
+        },
+        {
+          "type": "header",
+          "text": "Getting Model File in GGUF Format"
+        },
+        {
+          "type": "text",
+          "text": "GPT-Generated Unified Format (GGUF) is a binary file format for storing and loading large language models (LLMs). It's designed to be fast and efficient, and to work well on consumer-grade computers."
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/TheBloke/deepseek-llm-7B-base-GGUF",
+          "text": "TheBloke/deepseek-llm-7B-base-GGUF"
+        },
+        {
+          "type": "header",
+          "text": "Code setup in LsngChain and Poetry"
+        },
+        {
+          "type": "code",
+          "code": "// Poetry pyproject.toml\n[project]\nname = \"langchain-ai-server\"\nversion = \"0.1.0\"\ndescription = \"\"\nauthors = [\n    {name = \"Your Name\",email = \"you@example.com\"}\n]\nreadme = \"README.md\"\nrequires-python = \">=3.13,<4.0\"\ndependencies = [\n    \"langchain (>=0.3.15,<0.4.0)\",\n    \"llama-cpp-python (>=0.3.6,<0.4.0)\",\n    \"langchain-community (>=0.3.15,<0.4.0)\"\n]\n[build-system]\nrequires = [\"poetry-core>=2.0.0,<3.0.0\"]\nbuild-backend = \"poetry.core.masonry.api\""
+        },
+        {
+          "type": "code",
+          "code": "// deep_seek_server.py\nfrom langchain_community.llms import LlamaCpp\nfrom langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler, StdOutCallbackHandler\nfrom langchain_core.prompts import PromptTemplate\n\n# Callbacks support token-wise streaming\ncallback_manager = CallbackManager([StdOutCallbackHandler()])\n\n# Make sure the model path is correct for your system!\nllm = LlamaCpp(\n    model_path=\"./deepseek-llm-7b-base.Q4_K_M.gguf\",\n    temperature=0,\n    max_tokens=2000,\n    top_p=1,\n    callback_manager=callback_manager,\n    verbose=True,  # Verbose is required to pass to the callback manager,\n    stop=[\"Human\"] # Necessary To give the model a hint to stop generating text after the prompt. Otherwise it's going in lengthy question answer mode.\n)\n\nquestion = \"\"\"\nYuou are a friendly AI Assistant. Please respond in friendly manner.\nHuman: What are 2 famous hill stations in Maharashtra? Give me a very brief description of each.\nAI :\n\"\"\"\nresult = llm.invoke(question)\nprint(result)"
+        },
+        {
+          "type": "header",
+          "text": "Working with DeepSeek using ollama"
+        },
+        {
+          "type": "text",
+          "text": "Ollama is a free, open-source tool that allows users to run large language models (LLMs) locally on their system.\n            Follow below link to install Ollama"
+        },
+        {
+          "type": "reference",
+          "href": "https://ollama.com/download",
+          "text": "ollama.com"
+        },
+        {
+          "type": "header",
+          "text": "Pull and run the DeepSeek model"
+        },
+        {
+          "type": "text",
+          "text": "Ollama offers DeepSeek Models in different sizes. Select one and run it."
+        },
+        {
+          "type": "reference",
+          "href": "https://ollama.com/library/deepseek-r1:7b",
+          "text": "ollama deepseek-r1"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.youtube.com/watch?v=YlphofDY3SY",
+          "text": "DeepSeek-R1 python code"
+        },
+        {
+          "type": "code",
+          "code": "ollama run deepseek-r1:671b"
+        },
+        {
+          "type": "header",
+          "text": "Code setup in LsngChain and Poetry"
+        },
+        {
+          "type": "code",
+          "code": "[project]\nname = \"langchain-ai-server\"\nversion = \"0.1.0\"\ndescription = \"\"\nauthors = [\n    {name = \"Your Name\",email = \"you@example.com\"}\n]\nreadme = \"README.md\"\nrequires-python = \">=3.13,<4.0\"\ndependencies = [\n    \"langchain (>=0.3.15,<0.4.0)\",\n    \"llama-cpp-python (>=0.3.6,<0.4.0)\",\n    \"langchain-community (>=0.3.15,<0.4.0)\",\n    \"langchain-ollama (>=0.2.2,<0.3.0)\"\n]\n\n\n[build-system]\nrequires = [\"poetry-core>=2.0.0,<3.0.0\"]\nbuild-backend = \"poetry.core.masonry.api\""
+        },
+        {
+          "type": "code",
+          "code": "// deep_seek_ollama_server.py\nfrom langchain_core.prompts import ChatPromptTemplate\nfrom langchain_ollama.llms import OllamaLLM\n\ntemplate = \"\"\"Question: {question}\n\nAnswer: Let's think step by step.\"\"\"\n\nprompt = ChatPromptTemplate.from_template(template)\n\nmodel = OllamaLLM(model=\"deepseek-r1:7b\",base_url='http://127.0.0.1:11434/',verbose=True)\n\nchain = prompt | model\n\nresult = chain.invoke({\"question\": \"What are 2 famous hill stations in Maharashtra? Give me a very brief description of each?\"})\n\nprint(result)"
+        }
+      ]
+    }
+  },
+  {
+    "id": "2a18fa6f-bc69-5546-84e6-576f33a2700f",
+    "slug": "llm-training",
+    "title": "How to train LLM locally?",
+    "dateISO": "2026-05-07",
+    "category": "Article",
+    "summary": "We are going to choose Qwen2–0.5B and Phi-3-mini beacuse they are small and powerful.",
+    "body": "Tooling, Libraries, Frameworks, and more.",
+    "imageVariant": 4,
+    "richDoc": {
+      "header": "How to train LLM locally?",
+      "text": "Tooling, Libraries, Frameworks, and more.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Which small LLM to train?"
+        },
+        {
+          "type": "text",
+          "text": "We are going to choose Qwen2–0.5B and Phi-3-mini beacuse they are small and powerful."
+        },
+        {
+          "type": "reference",
+          "href": "https://medium.com/@darrenoberst/best-small-language-models-for-accuracy-and-enterprise-use-cases-benchmark-results-cf71964759c8",
+          "text": "best-small-language-models-for-accuracy-and-enterprise-use-cases"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.reddit.com/r/LocalLLaMA/comments/1fjxkxy/qwen25_a_party_of_foundation_models/",
+          "text": "qwen25_a_party_of_foundation_models"
+        },
+        {
+          "type": "reference",
+          "href": "https://ai.gopubby.com/qwen2-trying-to-beat-llama3-70b-and-phi-3-mini-d19717fb83a2",
+          "text": "qwen2-trying-to-beat-llama3-70b-and-phi-3-mini"
+        },
+        {
+          "type": "header",
+          "text": "Qwen2.5–0.5B"
+        },
+        {
+          "type": "text",
+          "text": "Qwen2 has generally surpassed most opensource models and demonstrated competitiveness against proprietary models across a series of benchmarks targeting for language understanding, language generation, multilingual capability, coding, mathematics, reasoning.\n            Its open-source model is available on GitHub.\n            We asre going to use Qwen2.5-Coder which is a small model with Coding capabilities.Its supporting 92 coding languages."
+        },
+        {
+          "type": "reference",
+          "href": "https://qwenlm.github.io/blog/qwen2/",
+          "text": "Hello Qwen2"
+        },
+        {
+          "type": "reference",
+          "href": "https://qwen.readthedocs.io/en/latest/index.html",
+          "text": "Welcome to Qwen"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/QwenLM/Qwen2.5",
+          "text": "Github Qwen2.5"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/QwenLM/Qwen2.5-Coder",
+          "text": "Qwen2.5-Coder"
+        },
+        {
+          "type": "header",
+          "text": "Getting GGUF file to run with Langchain and llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "Refer Below Links to get GGUF file."
+        },
+        {
+          "type": "reference",
+          "href": "https://qwen.readthedocs.io/en/latest/run_locally/llama.cpp.html#getting-the-gguf",
+          "text": "getting-the-gguf"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct",
+          "text": "Qwen2-0.5B-Instruct"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/bartowski/Qwen2.5-0.5B-Instruct-GGUF",
+          "text": "Qwen2.5-0.5B-Instruct-GGUF"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/bartowski/Qwen2.5-Coder-0.5B-GGUF",
+          "text": "Qwen2.5-Coder-0.5B-GGUF"
+        },
+        {
+          "type": "code",
+          "code": ".venv/Scripts/activate\npython -m pip install poetry\npoetry add langchain"
+        }
+      ]
+    }
+  },
+  {
+    "id": "3ef311dd-60fc-59f9-9a23-d1ef2b1941cb",
+    "slug": "instruct-tuning",
+    "title": "Instruction Tuning",
+    "dateISO": "2026-05-06",
+    "category": "Article",
+    "summary": "The main difference between instruction tuning and standard supervised fine-tuning lies in the data that the model is trained on. Whereas supervised fine-tuning trains models on input examples and their corresponding ...",
+    "body": "The main difference between instruction tuning and standard supervised fine-tuning lies in the data that the model is trained on. \n    Whereas supervised fine-tuning trains models on input examples and their corresponding outputs, instruction tuning augments input-output examples with instructions, \n    which enables instruction-tuned models to generalize more easily to new tasks.",
+    "imageVariant": 6,
+    "richDoc": {
+      "header": "Instruction Tuning",
+      "text": "The main difference between instruction tuning and standard supervised fine-tuning lies in the data that the model is trained on. \n    Whereas supervised fine-tuning trains models on input examples and their corresponding outputs, instruction tuning augments input-output examples with instructions, \n    which enables instruction-tuned models to generalize more easily to new tasks.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Instruction Tuning Datasets"
+        },
+        {
+          "type": "text",
+          "text": "Instruction datasets are used to fine-tune LLMs. The input and output string follow a template known as an instruction dataset format.\n            Some popular ones are Alpaca, Vicuna, Databricks, LIMA."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.ruder.io/an-overview-of-instruction-tuning-data",
+          "text": "an-overview-of-instruction-tuning-data"
+        },
+        {
+          "type": "reference",
+          "href": "https://lightning.ai/pages/community/tutorial/optimizing-llms-from-a-dataset-perspective/",
+          "text": "optimizing-llms-from-a-dataset-perspective"
+        },
+        {
+          "type": "header",
+          "text": "Alpaca Instruction Dataset"
+        },
+        {
+          "type": "text",
+          "text": "52k English instruction examples generated using OpenAI’s text-davinci-003 with self-instruct.\n            This instruction data can be used to conduct instruction-tuning for language models and make the language model follow instruction better."
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/tatsu-lab/alpaca",
+          "text": "alpaca"
+        },
+        {
+          "type": "reference",
+          "href": "https://zackproser.com/blog/how-to-create-a-custom-alpaca-dataset",
+          "text": "how-to-create-a-custom-alpaca-dataset"
+        },
+        {
+          "type": "header",
+          "text": "Alpaca Dataset format"
+        },
+        {
+          "type": "code",
+          "code": "\n// instruction: A prompt or question that guides the model's response.\n// input: Additional context or information (can be empty).\n// output: The desired response from the model.\n\n[\n  {\n    \"instruction\": \"Write a short story about a robot learning to cook.\",\n    \"input\": \"\",\n    \"output\": \"In a bustling kitchen of the future, Robot X-5 stood motionless, its optical sensors fixed on the sizzling pan before it. 'Crack two eggs,' the recipe instructed. With precision, X-5 selected an egg from the carton, but its metallic fingers crushed the delicate shell, sending yolk dripping down its chassis. Undeterred, X-5 tried again, this time adjusting its grip strength. Success! The egg cracked perfectly into the pan. As the day progressed, X-5 learned to chop vegetables without pulverizing them and to measure ingredients with increasing accuracy. By evening, a slightly lopsided but edible omelet sat on a plate, steam rising from its golden surface. X-5's LED display flickered in what could only be described as pride. It had taken its first step in mastering the art of cooking, proving that even robots can find joy in creating something delicious.\"\n  },\n  {\n    \"instruction\": \"Summarize below input\",\n    \"input\": \"The main difference between instruction tuning and standard supervised fine-tuning lies in the data that the model is trained on. \n              Whereas supervised fine-tuning trains models on input examples and their corresponding outputs, instruction tuning augments input-output examples with instructions, \n              which enables instruction-tuned models to generalize more easily to new tasks.\",\n    \"output\": \"The key difference between instruction tuning and standard supervised fine-tuning is the training data. \n              Supervised fine-tuning uses input-output pairs, while instruction tuning adds instructions to these pairs, helping models generalize better to new tasks.\"\n   }\n]"
+        },
+        {
+          "type": "header",
+          "text": "Which small LLM to tune?"
+        },
+        {
+          "type": "text",
+          "text": "We are going to choose Qwen2–0.5B and Phi-3-mini beacuse they are small and powerful."
+        },
+        {
+          "type": "reference",
+          "href": "https://medium.com/@darrenoberst/best-small-language-models-for-accuracy-and-enterprise-use-cases-benchmark-results-cf71964759c8",
+          "text": "best-small-language-models-for-accuracy-and-enterprise-use-cases"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.reddit.com/r/LocalLLaMA/comments/1fjxkxy/qwen25_a_party_of_foundation_models/",
+          "text": "qwen25_a_party_of_foundation_models"
+        },
+        {
+          "type": "reference",
+          "href": "https://ai.gopubby.com/qwen2-trying-to-beat-llama3-70b-and-phi-3-mini-d19717fb83a2",
+          "text": "qwen2-trying-to-beat-llama3-70b-and-phi-3-mini"
+        },
+        {
+          "type": "header",
+          "text": "Qwen2.5–0.5B"
+        },
+        {
+          "type": "text",
+          "text": "Qwen2 has generally surpassed most opensource models and demonstrated competitiveness against proprietary models across a series of benchmarks targeting for language understanding, language generation, multilingual capability, coding, mathematics, reasoning.\n            Its open-source model is available on GitHub.\n            We asre going to use Qwen2.5-Coder which is a small model with Coding capabilities.Its supporting 92 coding languages."
+        },
+        {
+          "type": "reference",
+          "href": "https://qwenlm.github.io/blog/qwen2/",
+          "text": "Hello Qwen2"
+        },
+        {
+          "type": "reference",
+          "href": "https://qwen.readthedocs.io/en/latest/index.html",
+          "text": "Welcome to Qwen"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/QwenLM/Qwen2.5",
+          "text": "Github Qwen2.5"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/QwenLM/Qwen2.5-Coder",
+          "text": "Qwen2.5-Coder"
+        },
+        {
+          "type": "header",
+          "text": "Getting GGUF file to run with Langchain and llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "Refer Below Links to get GGUF file."
+        },
+        {
+          "type": "reference",
+          "href": "https://qwen.readthedocs.io/en/latest/run_locally/llama.cpp.html#getting-the-gguf",
+          "text": "getting-the-gguf"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/Qwen/Qwen2-0.5B-Instruct",
+          "text": "Qwen2-0.5B-Instruct"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/bartowski/Qwen2.5-0.5B-Instruct-GGUF",
+          "text": "Qwen2.5-0.5B-Instruct-GGUF"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/bartowski/Qwen2.5-Coder-0.5B-GGUF",
+          "text": "Qwen2.5-Coder-0.5B-GGUF"
+        },
+        {
+          "type": "header",
+          "text": "Unsloth.ai : Optimize and Speed Up LLM Fine-Tuning"
+        },
+        {
+          "type": "text",
+          "text": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. \n            Unsloth makes finetuning large language models like Llama-3, Mistral, Phi-4 and Gemma 2x faster, use 70% less memory, and with no degradation in accuracy!"
+        },
+        {
+          "type": "reference",
+          "href": "https://docs.unsloth.ai/",
+          "text": "docs.unsloth.ai"
+        }
+      ]
+    }
+  },
+  {
+    "id": "52968d43-6ef3-558b-93f4-8799c83d23db",
+    "slug": "peft",
+    "title": "Parameter Efficient Fine Tuning (PEFT)",
+    "dateISO": "2026-05-05",
+    "category": "Article",
+    "summary": "Fine-tuning Large Language Models (LLMs) often results in substantial challenges, such as handling massive weights and requiring immense computational power. As models grow in size and depth, the need for multiple hig...",
+    "body": "Fine-tuning Large Language Models (LLMs) often results in substantial challenges, such as handling massive weights and requiring immense computational power. As models grow in size and depth, the need for multiple high-performance GPUs becomes crucial, driving up the computational demands for training and fine-tuning. The size of fine-tuned models also poses significant challenges in terms of storage and portability. Full fine-tuning of LLMs typically results in large checkpoints, often reaching gigabytes in size.\n    PEFT is a great choice when dealing with domain-specific tasks that necessitate model adaptation. By employing PEFT, we can strike a balance between retaining valuable knowledge from the pre-trained model and adapting it effectively to the target task with fewer parameters. There are various ways of achieving Parameter efficient fine-tuning. Low Rank Parameter or LoRA & QLoRA are most widely used and effective.",
+    "imageVariant": 3,
+    "richDoc": {
+      "header": "Parameter Efficient Fine Tuning (PEFT)",
+      "text": "Fine-tuning Large Language Models (LLMs) often results in substantial challenges, such as handling massive weights and requiring immense computational power. As models grow in size and depth, the need for multiple high-performance GPUs becomes crucial, driving up the computational demands for training and fine-tuning. The size of fine-tuned models also poses significant challenges in terms of storage and portability. Full fine-tuning of LLMs typically results in large checkpoints, often reaching gigabytes in size.\n    PEFT is a great choice when dealing with domain-specific tasks that necessitate model adaptation. By employing PEFT, we can strike a balance between retaining valuable knowledge from the pre-trained model and adapting it effectively to the target task with fewer parameters. There are various ways of achieving Parameter efficient fine-tuning. Low Rank Parameter or LoRA & QLoRA are most widely used and effective.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Full Fine Tuning vs PEFT"
+        },
+        {
+          "type": "text",
+          "text": "Traditional full fine-tuning methods involve slight adjustments to all the parameters in pretrained LLMs to adapt them for specific tasks. But as developments in artificial intelligence (AI) and deep learning (DL) have led models to grow larger and more complex, the fine-tuning process has become too demanding on computational resources and energy.\n            Also, each fine-tuned model is the same size as the original. All these models take up significant amounts of storage space, further driving up costs for the organizations that use them. While fine-tuning does create more efficient machine learning (ML), the process of fine-tuning LLMs has itself become inefficient.\n            PEFT adjusts the handful of parameters that are most relevant to the model’s intended use case to deliver specialized model performance while reducing model weights for significant computational cost and time savings."
+        },
+        {
+          "type": "header",
+          "text": "PEFT Techniques"
+        },
+        {
+          "type": "text",
+          "text": "The sheer size of these models makes them cumbersome to handle, emphasizing the need for efficient fine-tuning techniques to manage their substantial computational and storage demands effectively.\n             By employing PEFT, we can strike a balance between retaining valuable knowledge from the pre-trained model and adapting it effectively to the target task with fewer parameters. There are various ways of achieving Parameter efficient fine-tuning. \n             Low Rank Parameter or LoRA & QLoRA are most widely used and effective."
+        },
+        {
+          "type": "header",
+          "text": "LoRA (Low-Rank Adaptation)"
+        },
+        {
+          "type": "text",
+          "text": "LoRA (Low-Rank Adaptation) is a more efficient approach that decomposes the weight update matrix (ΔW) into two lower-dimensional matrices (A) and (B). This decomposition reduces the number of trainable parameters, making fine-tuning more efficient.\n            LoRA represents (ΔW) as the product of two smaller matrices (A) and (B), with a lower rank. The updated weight matrix (W') becomes W + BA, where W remains frozen and A and B are updated during training.\n            The LoRA approach reduces the number of trainable parameters, making fine-tuning more efficient. For example, if W is a (d x d) matrix, traditional fine-tuning would require (d²) parameters, but LoRA reduces this to (2dr), which is much smaller when (r << d)."
+        },
+        {
+          "type": "header",
+          "text": "QLoRA(Quantized Low-Rank Adaptation)"
+        },
+        {
+          "type": "text",
+          "text": "uilding on the success of LoRA, QLoRA(Quantized Low-Rank Adaptation) takes efficient fine-tuning to the next level. Traditionally, model parameters are stored in 32/16-bit format, but QLoRA compresses them to a 4-bit format, resulting in a significant reduction in memory requirements. \n            This innovation enables fine-tuning of large language models on a single GPU, making it possible to deploy these models on less powerful hardware, including consumer-grade GPUs.\n            Thanks to quantization, the space occupied by the model in memory is even smaller, while there is very little loss in performance."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.linkedin.com/pulse/lora-qlora-simplified-approach-fine-tuning-large-language-prakash-hfv0f",
+          "text": "lora-qlora-simplified"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/blog/mlabonne/sft-llama3",
+          "text": "sft-llama3"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.mercity.ai/blog-post/guide-to-fine-tuning-llms-with-lora-and-qlora",
+          "text": "guide-to-fine-tuning-llms-with-lora-and-qlora"
+        }
+      ]
+    }
+  },
+  {
+    "id": "218db733-7661-5b54-863b-4d6623228f79",
+    "slug": "install-unsloth",
+    "title": "Installiing Unsloth on Windows",
+    "dateISO": "2026-05-04",
+    "category": "Article",
+    "summary": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. Unsloth ma...",
+    "body": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. \n        Unsloth makes finetuning large language models like Llama-3, Mistral, Phi-4 and Gemma 2x faster, use 70% less memory, and with no degradation in accuracy. It is fully compatible with the Hugging Face ecosystem (Hub, transformers, PEFT, TRL). \n        The library is actively developed by the Unsloth team (Daniel and Michael) and the open source community. The library supports most NVIDIA GPUs –from GTX 1070 all the way up to H100s–, and can be used with the entire trainer suite from the TRL library (SFTTrainer, DPOTrainer, PPOTrainer).",
+    "imageVariant": 1,
+    "richDoc": {
+      "header": "Installiing Unsloth on Windows",
+      "text": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. \n        Unsloth makes finetuning large language models like Llama-3, Mistral, Phi-4 and Gemma 2x faster, use 70% less memory, and with no degradation in accuracy. It is fully compatible with the Hugging Face ecosystem (Hub, transformers, PEFT, TRL). \n        The library is actively developed by the Unsloth team (Daniel and Michael) and the open source community. The library supports most NVIDIA GPUs –from GTX 1070 all the way up to H100s–, and can be used with the entire trainer suite from the TRL library (SFTTrainer, DPOTrainer, PPOTrainer).",
+      "contents": [
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/blog/unsloth-trl",
+          "text": "Make LLM Fine-tuning 2x faster"
+        },
+        {
+          "type": "header",
+          "text": "Prerequsites"
+        },
+        {
+          "type": "text",
+          "text": "Cuda Toollkit for Windows, Python 3.12"
+        },
+        {
+          "type": "header",
+          "text": "PyTorch"
+        },
+        {
+          "type": "text",
+          "text": "PyTorch is an open source machine learning (ML) framework based on the Python programming language and the Torch library."
+        },
+        {
+          "type": "code",
+          "code": "pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126\n# cu126 refers to the CUDA version where cu[cuda version]"
+        },
+        {
+          "type": "reference",
+          "href": "https://pytorch.org/get-started/locally/#windows-pip",
+          "text": "Installing PyTorch"
+        },
+        {
+          "type": "header",
+          "text": "Unsloth"
+        },
+        {
+          "type": "code",
+          "code": "pip install \"unsloth[cu126-torch260] @ git+https://github.com/unslothai/unsloth.git\"\n# cu126 refers to the CUDA version where cu[cuda version], torch260 refers torch[torch version]\n# to get torch version, run python -c \"import torch; print(torch.__version__)\""
+        },
+        {
+          "type": "header",
+          "text": "Triton"
+        },
+        {
+          "type": "text",
+          "text": "Unsloth uses triton. Triton and CUDA are both tools for writing high-performance GPU code. \n            Triton is an open-source Python library developed by OpenAI, while CUDA is a tool for writing code on NVIDIA GPUs.\n            Officially triton is not supported on Windows, but it can be installed using the following command using wheel file."
+        },
+        {
+          "type": "code",
+          "code": "pip install \"https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/triton-3.2.0-cp312-cp312-win_amd64.whl\"\n// Refer https://github.com/woct0rdho/triton-windows/\n// https://github.com/woct0rdho/triton-windows/releases"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/triton-lang/triton",
+          "text": "triton"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/madbuda/triton-windows-builds/tree/main",
+          "text": "triton-windows-builds"
+        },
+        {
+          "type": "header",
+          "text": "xFormers"
+        },
+        {
+          "type": "text",
+          "text": "xFormers is a PyTorch extension library for composable and optimized Transformer blocks."
+        },
+        {
+          "type": "code",
+          "code": "pip install -U xformers --index-url https://download.pytorch.org/whl/cu126"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/facebookresearch/xformers#installing-xformers",
+          "text": "installing-xformers"
+        },
+        {
+          "type": "header",
+          "text": "cmake"
+        },
+        {
+          "type": "text",
+          "text": "CMake is an open source, cross-platform family of tools designed to build, test, and package software. CMake gives you control of the software compilation process using simple independent configuration files. Unlike many cross-platform systems, CMake is designed to be used in conjunction with the native build environment."
+        },
+        {
+          "type": "reference",
+          "href": "https://cmake.org/download/",
+          "text": "cmake"
+        },
+        {
+          "type": "header",
+          "text": "llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "llama.cpp is an open source software library that performs inference on various large language models such as Llama. It is co-developed alongside the GGML project, a general-purpose tensor library.\n            The main goal of llama.cpp is to enable LLM inference with minimal setup and state-of-the-art performance on a wide range of hardware - locally and in the cloud."
+        },
+        {
+          "type": "code",
+          "code": "git clone https://github.com/ggerganov/llama.cpp\ncd llama.cpp\ncmake -B build -DGGML_CUDA=ON\ncmake --build build --config Release"
+        },
+        {
+          "type": "link",
+          "href": "#/install-llamacpp",
+          "text": "Install Llama.cpp"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md#cuda",
+          "text": "installing-llama.cpp"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/ggerganov/llama.cpp",
+          "text": "llama.cpp"
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.steelph0enix.dev/posts/llama-cpp-guide/",
+          "text": "llama-cpp-guide"
+        }
+      ]
+    }
+  },
+  {
+    "id": "900993d3-74b9-5af4-a6fd-d85109883fc0",
+    "slug": "peft-unsloth",
+    "title": "Parameter Efficient Fine Tuning (PEFT) using Unsloth",
+    "dateISO": "2026-05-03",
+    "category": "Article",
+    "summary": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. Unsloth ma...",
+    "body": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. \n        Unsloth makes finetuning large language models like Llama-3, Mistral, Phi-4 and Gemma 2x faster, use 70% less memory, and with no degradation in accuracy. It is fully compatible with the Hugging Face ecosystem (Hub, transformers, PEFT, TRL). \n        The library is actively developed by the Unsloth team (Daniel and Michael) and the open source community. The library supports most NVIDIA GPUs –from GTX 1070 all the way up to H100s–, and can be used with the entire trainer suite from the TRL library (SFTTrainer, DPOTrainer, PPOTrainer).",
+    "imageVariant": 4,
+    "richDoc": {
+      "header": "Parameter Efficient Fine Tuning (PEFT) using Unsloth",
+      "text": "Unsloth is an open-source Python framework that speeds up the fine-tuning of large language models (LLMs). It's designed to help developers and researchers create custom models more quickly and efficiently. \n        Unsloth makes finetuning large language models like Llama-3, Mistral, Phi-4 and Gemma 2x faster, use 70% less memory, and with no degradation in accuracy. It is fully compatible with the Hugging Face ecosystem (Hub, transformers, PEFT, TRL). \n        The library is actively developed by the Unsloth team (Daniel and Michael) and the open source community. The library supports most NVIDIA GPUs –from GTX 1070 all the way up to H100s–, and can be used with the entire trainer suite from the TRL library (SFTTrainer, DPOTrainer, PPOTrainer).",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Loading Model"
+        },
+        {
+          "type": "text",
+          "text": "Just load your model with FastLanguageModel.from_pretrained! Currently, Unsloth supports Llama and Mistral type architectures (Yi, Deepseek, TinyLlama, Llamafied Qwen)."
+        },
+        {
+          "type": "code",
+          "code": "from unsloth import FastLanguageModel\nimport torch\n\nmax_seq_length = 2048 # Choose any! We auto support RoPE Scaling internally!\ndtype = None          # None for auto detection. Float16 for Tesla T4, V100, Bfloat16 for Ampere+\nload_in_4bit = True   # Use 4bit quantization to reduce memory usage. Can be False.\n\nmodel, tokenizer = FastLanguageModel.from_pretrained(\n    model_name = \"Qwen/Qwen2.5-Coder-0.5B\",\n    max_seq_length = max_seq_length,\n    dtype = dtype,\n    load_in_4bit = load_in_4bit\n)\n    \n#   from unsloth import FastLanguageModel: Imports the FastLanguageModel class from the Unsloth library.\n#   import torch: Imports PyTorch for tensor operations and GPU management.\n#   max_seq_length = 2048: Sets the maximum sequence length for input data. FastLanguageModel supports RoPE Scaling internally, allowing dynamic adjustment for larger sequences.\n#   dtype = None: Specifies the data type for model weights. Setting to None enables automatic detection based on the hardware. Alternatives include float16 for GPUs like Tesla T4 or V100, and bfloat16 for newer GPUs like Ampere.\n#   load_in_4bit = True: Enables 4-bit quantization to reduce memory usage, facilitating the loading of larger models without running out of memory (OOM). Setting to False would load the model in higher precision but with higher memory consumption."
+        },
+        {
+          "type": "header",
+          "text": "Apply Parameter-Efficient Fine-Tuning (LoRA)"
+        },
+        {
+          "type": "text",
+          "text": "Parameter-efficient fine-tuning (PEFT) is a more efficient form of instruction-based fine-tuning. Full LLM fine-tuning is resource-intensive, demanding considerable computational power, memory, and storage. PEFT addresses this by updating only a select set of parameters while keeping the rest frozen. This reduces the memory load during training and prevents the model from forgetting previously learned information. PEFT is particularly useful when fine-tuning for multiple tasks. Among the common techniques to achieve PEFT, LoRA, and QLoRA are widely recognized for their effectiveness."
+        },
+        {
+          "type": "code",
+          "code": "model = FastLanguageModel.get_peft_model(\n    model,\n    r = 16, # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128\n    target_modules = [\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\",\n                      \"gate_proj\", \"up_proj\", \"down_proj\",],\n    lora_alpha = 16,\n    lora_dropout = 0, # Currently only supports dropout = 0\n    bias = \"none\",    # Currently only supports bias = \"none\"\n    use_gradient_checkpointing = True,\n    random_state = 3407,\n    max_seq_length = max_seq_length,\n)\n\n#   model: The pre-trained model loaded in the previous cell is passed as input to apply PEFT.\n#   r = 16: The rank of the LoRA matrices. Higher values allow more capacity but consume more memory. Suggested values range from 8 to 128.\n#   target_modules: Specifies which modules within the model to apply LoRA. In this case, projection layers like q_proj, k_proj, v_proj, etc., are targeted.\n#   lora_alpha = 16: A scaling factor for LoRA. Balances the contribution of the LoRA layers to the model's output.\n#   lora_dropout = 0: Dropout rate applied within LoRA layers. Set to 0 for optimized performance.\n#   bias = \"none\": Indicates that biases are not being fine-tuned. This setting is optimized for memory and performance.\n#   use_gradient_checkpointing = \"unsloth\": Enables gradient checkpointing to save memory during training. The \"unsloth\" setting optimizes VRAM usage, allowing for larger batch sizes and handling longer contexts.\n#   random_state = 3407: Sets the seed for reproducibility.\n#   use_rslora = False: Indicates whether to use Rank Stabilized LoRA. Set to False in this configuration.\n#   loftq_config = None: Placeholder for additional LoftQ configurations if needed.\n"
+        },
+        {
+          "type": "header",
+          "text": "Load and Preprocess the Dataset for Fine-Tuning"
+        },
+        {
+          "type": "text",
+          "text": "Parameter-efficient fine-tuning (PEFT) is a more efficient form of instruction-based fine-tuning. Full LLM fine-tuning is resource-intensive, demanding considerable computational power, memory, and storage. PEFT addresses this by updating only a select set of parameters while keeping the rest frozen. This reduces the memory load during training and prevents the model from forgetting previously learned information. PEFT is particularly useful when fine-tuning for multiple tasks. Among the common techniques to achieve PEFT, LoRA, and QLoRA are widely recognized for their effectiveness."
+        },
+        {
+          "type": "link",
+          "href": "#/data-sets",
+          "text": "Finetuning Datasets Types"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/docs/trl/en/sft_trainer#dataset-format-support",
+          "text": "sft_trainer_dataset-format-support"
+        },
+        {
+          "type": "code",
+          "code": "from datasets import load_dataset;\n\nalpaca_prompt = \"\"\"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Input:\n{}\n\n### Response:\n{}\"\"\"\n\ndef formatting_prompts_func(examples):\n    instructions = examples[\"instruction\"]\n    inputs       = examples[\"input\"]\n    outputs      = examples[\"output\"]\n    texts = []\n    for instruction, input, output in zip(instructions, inputs, outputs):\n        text = alpaca_prompt.format(instruction, input, output)\n        texts.append(text)\n    return { \"text\" : texts, }\npass\n\ndataset = load_dataset(\"json\", data_files=\"instruct.json\", split='train')\ndataset = dataset.map(formatting_prompts_func, batched = True)\n"
+        },
+        {
+          "type": "header",
+          "text": "Model Training using SFTTrainer(Supervised Fine-Tuning Trainer)"
+        },
+        {
+          "type": "text",
+          "text": "The SFTTrainer is specifically designed for this instruction-based fine-tuning."
+        },
+        {
+          "type": "code",
+          "code": "from trl import SFTTrainer;\n\ntrainer = SFTTrainer(\nmodel = model,\ntokenizer = tokenizer,\ntrain_dataset = dataset,\ndataset_text_field = \"text\",\nmax_seq_length = max_seq_length,\n    args = TrainingArguments(\n        per_device_train_batch_size = 4,\n        gradient_accumulation_steps = 4,\n        warmup_steps = 10,\n        max_steps = 120,\n        learning_rate = 2e-4,\n        fp16 = not torch.cuda.is_bf16_supported(),\n        bf16 = torch.cuda.is_bf16_supported(),\n        logging_steps = 1,\n        optim = \"adamw_8bit\",\n        weight_decay = 0.01,\n        lr_scheduler_type = \"linear\",\n        seed = 3407,\n        output_dir = \"outputs\",\n    ),\n)\n"
+        },
+        {
+          "type": "header",
+          "text": "Start Training"
+        },
+        {
+          "type": "text",
+          "text": "trainer.train(): Initiates the training loop using the configured trainer. The train() method runs the training process based on the previously defined TrainingArguments and dataset."
+        },
+        {
+          "type": "code",
+          "code": "trainer_stats = trainer.train()"
+        },
+        {
+          "type": "header",
+          "text": "Saving Model"
+        },
+        {
+          "type": "text",
+          "text": "Saves the trained model and tokenizer for future use."
+        },
+        {
+          "type": "code",
+          "code": "model.save_pretrained(\"lora_model\") # Local saving\ntokenizer.save_pretrained(\"lora_model\")\n\n# model.save_pretrained(\"lora_model\"): Saves the fine-tuned model weights and configuration to a directory named \"lora_model\".\n# tokenizer.save_pretrained(\"lora_model\"): Saves the tokenizer configuration to the same directory, ensuring that the model can be reloaded with the correct tokenizer.\n"
+        },
+        {
+          "type": "header",
+          "text": "Saving Trained Model to GGUF Format"
+        },
+        {
+          "type": "text",
+          "text": "We need llama.cpp scripts to convert the trained model to GGUF format."
+        },
+        {
+          "type": "link",
+          "href": "#/install-llamacpp",
+          "text": "Install Llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "By following these steps, you can convert a Hugging Face model to GGUF format and take advantage of the benefits of GGUF for CPU-based deployment of machine learning models. For running the model on local setups use software like ollama, lmstudio, etc gguf file are required. These files help in efficient storage of model and faster inference."
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/AmpereComputing/llama-3.1-8b-gguf",
+          "text": "llama-3.1-8b-gguf"
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.steelph0enix.dev/posts/llama-cpp-guide/#converting-huggingface-model-to-gguf",
+          "text": "converting-huggingface-model-to-gguf"
+        },
+        {
+          "type": "code",
+          "code": "python llama.cpp/convert-hf-to-gguf.py path/to/llama2 --outtype f16 --outfile llama-2-7b-f16.gguf\n\n# python llama.cpp/convert-hf-to-gguf.py [path to the original model] --outtype [f32, f16, bf16 or q8_0] --outfile [output path]\n\n# llama.cpp/convert-hf-to-gguf.py : the path to the convert-hf-to-gguf.py file. relative to the current directory of the terminal\n# path/to/llama2 : path to the HF model folder. relative to the current directory of the terminal\n# --outfile llama-2-7b-f16.gguf : the ouput file, it need to have the .gguf extension at the end\n# --outtype f16 : the quantization method\n"
+        },
+        {
+          "type": "header",
+          "text": "Quantizing the model"
+        },
+        {
+          "type": "text",
+          "text": "We can finally quantize our model! To do that, we’ll use llama-quantize executable that we previously compiled with other llama.cpp executables."
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.steelph0enix.dev/posts/llama-cpp-guide/#quantizing-the-model",
+          "text": "quantizing-the-model"
+        },
+        {
+          "type": "reference",
+          "href": "https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-quantization",
+          "text": "a-visual-guide-to-quantization"
+        },
+        {
+          "type": "code",
+          "code": "llama.cpp/build/bin/Release/llama-quantize.exe my_tuned_llm.gguf my_tuned_llm_Q4_K.gguf Q4_K\n# To check what quantizations we have available run - llama-quantize.exe --help\n# Input gguf file - my_tuned_llm.gguf\n# Output gguf file - my_tuned_llm_Q4_K.gguf\n# Quantization method - Q4_K\n"
+        },
+        {
+          "type": "header",
+          "text": "Tuning Examples"
+        },
+        {
+          "type": "link",
+          "href": "#/tune-phi3.5-mini",
+          "text": "Tune microsoft/Phi-3.5-mini-instruct"
+        },
+        {
+          "type": "header",
+          "text": "References"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.kaggle.com/code/ksmooi/fine-tuning-qwen-2-5-coder-14b-llm-sft-peft",
+          "text": "fine-tuning-qwen-2-5-coder-14b-llm-sft-peft"
+        },
+        {
+          "type": "reference",
+          "href": "https://ubiai.tools/fine-tune-llama-3-psychology-question-unsloth/",
+          "text": "fine-tune-llama-3-psychology-question-unsloth"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/unsloth/notebooks/blob/main/Alpaca_%2B_Codellama_34b_full_example.ipynb",
+          "text": "Alpaca_Codellama_34b_full_example"
+        }
+      ]
+    }
+  },
+  {
+    "id": "111f7cd1-0cd9-51db-9000-b77edf09ccf0",
+    "slug": "data-sets",
+    "title": "LLM Datasets for Fine-tuning",
+    "dateISO": "2026-05-02",
+    "category": "Article",
+    "summary": "LLM datasets are large sets of text data that are used to train large language models (LLMs).",
+    "body": "LLM datasets are large sets of text data that are used to train large language models (LLMs).",
+    "imageVariant": 3,
+    "richDoc": {
+      "header": "LLM Datasets for Fine-tuning",
+      "text": "LLM datasets are large sets of text data that are used to train large language models (LLMs).",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Text Classification Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets help train models to categorize text into predefined categories like sentiment analysis, topic classification, or spam detection."
+        },
+        {
+          "type": "header",
+          "text": "Text Generation Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These consist of prompts and corresponding responses, useful for training models to generate contextually appropriate and coherent text."
+        },
+        {
+          "type": "header",
+          "text": "Summarization Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets contain long documents paired with summaries, designed to train models to generate or refine summaries."
+        },
+        {
+          "type": "header",
+          "text": "Question-Answering Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets include questions and their correct answers, often derived from FAQs, support dialogues, or knowledge bases."
+        },
+        {
+          "type": "header",
+          "text": "Mask Modeling Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These are used to train models with masked language modeling (MLM), where parts of the text are hidden, and the model predicts the missing words or tokens. This method is crucial in the pre-training phase for models like BERT."
+        },
+        {
+          "type": "header",
+          "text": "Instruction Fine-Tuning Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets consist of instructions paired with expected responses, guiding the model to execute tasks based on user commands.\n            The input and output string follow a template known as an instruction dataset format. Some popular ones are Alpaca, Vicuna, Databricks, LIMA."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.ruder.io/an-overview-of-instruction-tuning-data",
+          "text": "an-overview-of-instruction-tuning-data"
+        },
+        {
+          "type": "reference",
+          "href": "https://lightning.ai/pages/community/tutorial/optimizing-llms-from-a-dataset-perspective/",
+          "text": "optimizing-llms-from-a-dataset-perspective"
+        },
+        {
+          "type": "header",
+          "text": "- Alpaca Instruction Dataset"
+        },
+        {
+          "type": "text",
+          "text": "52k English instruction examples generated using OpenAI’s text-davinci-003 with self-instruct.\n            This instruction data can be used to conduct instruction-tuning for language models and make the language model follow instruction better."
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/tatsu-lab/alpaca",
+          "text": "alpaca"
+        },
+        {
+          "type": "reference",
+          "href": "https://zackproser.com/blog/how-to-create-a-custom-alpaca-dataset",
+          "text": "how-to-create-a-custom-alpaca-dataset"
+        },
+        {
+          "type": "header",
+          "text": "- Alpaca Dataset format"
+        },
+        {
+          "type": "code",
+          "code": "\n// instruction: A prompt or question that guides the model's response.\n// input: Additional context or information (can be empty).\n// output: The desired response from the model.\n\n[\n  {\n    \"instruction\": \"Write a short story about a robot learning to cook.\",\n    \"input\": \"\",\n    \"output\": \"In a bustling kitchen of the future, Robot X-5 stood motionless, its optical sensors fixed on the sizzling pan before it. 'Crack two eggs,' the recipe instructed. With precision, X-5 selected an egg from the carton, but its metallic fingers crushed the delicate shell, sending yolk dripping down its chassis. Undeterred, X-5 tried again, this time adjusting its grip strength. Success! The egg cracked perfectly into the pan. As the day progressed, X-5 learned to chop vegetables without pulverizing them and to measure ingredients with increasing accuracy. By evening, a slightly lopsided but edible omelet sat on a plate, steam rising from its golden surface. X-5's LED display flickered in what could only be described as pride. It had taken its first step in mastering the art of cooking, proving that even robots can find joy in creating something delicious.\"\n  },\n  {\n    \"instruction\": \"Summarize below input\",\n    \"input\": \"The main difference between instruction tuning and standard supervised fine-tuning lies in the data that the model is trained on. \n              Whereas supervised fine-tuning trains models on input examples and their corresponding outputs, instruction tuning augments input-output examples with instructions, \n              which enables instruction-tuned models to generalize more easily to new tasks.\",\n    \"output\": \"The key difference between instruction tuning and standard supervised fine-tuning is the training data. \n              Supervised fine-tuning uses input-output pairs, while instruction tuning adds instructions to these pairs, helping models generalize better to new tasks.\"\n   }\n]"
+        },
+        {
+          "type": "header",
+          "text": "Conversational Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets are designed for training dialogue models, with conversations between users and systems or among multiple users."
+        },
+        {
+          "type": "header",
+          "text": "Named Entity Recognition (NER) Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets teach models to identify and categorize entities like names, locations, dates, etc."
+        },
+        {
+          "type": "reference",
+          "href": "https://ubiai.tools/fine-tune-llama-3-psychology-question-unsloth/",
+          "text": "What is an LLM Dataset?"
+        },
+        {
+          "type": "reference",
+          "href": "https://wandb.ai/capecape/alpaca_ft/reports/How-to-Fine-Tune-an-LLM-Part-1-Preparing-a-Dataset-for-Instruction-Tuning--Vmlldzo1NTcxNzE2",
+          "text": "Preparing-a-Dataset-for-Instruction-Tuning"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/haripritam/function-calling-alpaca",
+          "text": "function-calling-alpaca"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/ceiteach/chart-function-calling-alpaca",
+          "text": "chart-function-calling-alpaca"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/collections/davanstrien/top-10-instruction-tuning-datasets-650d91e11427d12e8542a21a",
+          "text": "top-10-instruction-tuning-datasets"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/Zjh-819/LLMDataHub",
+          "text": "LLMDataHub"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/mlabonne/llm-datasets",
+          "text": "llm-datasets"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/jianzhnie/awesome-instruction-datasets",
+          "text": "awesome-instruction-datasets"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.projectpro.io/article/llm-datasets-for-training/1027",
+          "text": "llm-datasets-for-training"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/neural-bridge/rag-dataset-12000",
+          "text": "rag-dataset"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/Locutusque/function-calling-chatml",
+          "text": "function-calling-chatml"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/glaiveai/glaive-function-calling-v2",
+          "text": "glaive-function-calling"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/ServiceNow-AI/M2Lingual",
+          "text": "M2Lingual"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/CohereForAI/aya_dataset",
+          "text": "aya_dataset"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/Vezora/Open-Critic-GPT",
+          "text": "Open-Critic-GPT"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/b-mc2/sql-create-context",
+          "text": "sql-create-context"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/gretelai/synthetic_text_to_sql",
+          "text": "synthetic_text_to_sql"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.kaggle.com/datasets/abdelrahmanm2003/albert-einstein-llm-instruction-dataset",
+          "text": "albert-einstein-llm-instruction-dataset"
+        },
+        {
+          "type": "reference",
+          "href": "https://til.simonwillison.net/gpt3/open-api",
+          "text": "Generating OpenAPI specifications using GPT-3"
+        },
+        {
+          "type": "reference",
+          "href": "https://arxiv.org/html/2405.15729v2",
+          "text": "OpenAPI Code Completion"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.analyticsvidhya.com/blog/2024/07/finetuning-phi-medium-to-generate-cypher-query-from-text/",
+          "text": "finetuning-phi-medium-to-generate-cypher-query-from-text"
+        }
+      ]
+    }
+  },
+  {
+    "id": "fbec8b6b-4303-5221-83b3-79cebe63a279",
+    "slug": "install-llamacpp",
+    "title": "llama.cpp",
+    "dateISO": "2026-05-01",
+    "category": "Article",
+    "summary": "llama.cpp is an open source software library that performs inference on various large language models such as Llama. It is co-developed alongside the GGML project, a general-purpose tensor library. The main goal of ll...",
+    "body": "llama.cpp is an open source software library that performs inference on various large language models such as Llama. It is co-developed alongside the GGML project, a general-purpose tensor library.\n            The main goal of llama.cpp is to enable LLM inference with minimal setup and state-of-the-art performance on a wide range of hardware - locally and in the cloud.",
+    "imageVariant": 5,
+    "richDoc": {
+      "header": "llama.cpp",
+      "text": "llama.cpp is an open source software library that performs inference on various large language models such as Llama. It is co-developed alongside the GGML project, a general-purpose tensor library.\n            The main goal of llama.cpp is to enable LLM inference with minimal setup and state-of-the-art performance on a wide range of hardware - locally and in the cloud.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "llama.cpp"
+        },
+        {
+          "type": "text",
+          "text": "llama.cpp is an open source software library that performs inference on various large language models such as Llama. It is co-developed alongside the GGML project, a general-purpose tensor library.\n            The main goal of llama.cpp is to enable LLM inference with minimal setup and state-of-the-art performance on a wide range of hardware - locally and in the cloud."
+        },
+        {
+          "type": "code",
+          "code": "git clone https://github.com/ggerganov/llama.cpp\ncd llama.cpp\ncmake -B build -DGGML_CUDA=ON\ncmake --build build --config Release"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md#cuda",
+          "text": "installing-llama.cpp"
+        },
+        {
+          "type": "reference",
+          "href": "https://github.com/ggerganov/llama.cpp",
+          "text": "llama.cpp"
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.steelph0enix.dev/posts/llama-cpp-guide/",
+          "text": "llama-cpp-guide"
+        }
+      ]
+    }
+  },
+  {
+    "id": "98d58940-fc6b-54da-aee9-2537170fa269",
+    "slug": "ai-agent",
+    "title": "What is an AI agent?",
+    "dateISO": "2026-04-30",
+    "category": "Article",
+    "summary": "AI Agents be described as a system that can use a LLM to reason through a problem, create a plan to solve the problem, and execute the plan with the help of a provided set of tools.",
+    "body": "AI Agents be described as a system that can use a LLM to reason through a problem, create a plan to solve the problem, and execute the plan with the help of a provided set of tools.",
+    "imageVariant": 5,
+    "richDoc": {
+      "header": "What is an AI agent?",
+      "text": "AI Agents be described as a system that can use a LLM to reason through a problem, create a plan to solve the problem, and execute the plan with the help of a provided set of tools.",
+      "contents": [
+        {
+          "type": "header",
+          "text": "Workflows and Agents"
+        },
+        {
+          "type": "text",
+          "text": "\"Workflows\" are systems where LLMs and tools are orchestrated through predefined code paths.\n            \"Agents\", on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks."
+        },
+        {
+          "type": "image",
+          "src": "./wf-ag.png"
+        },
+        {
+          "type": "header",
+          "text": "TAO (Thought-Action-Observation) Loop"
+        },
+        {
+          "type": "text",
+          "text": "The Thought-Action-Observation Loop is a reasoning paradigm used in frameworks like ReACT to improve the problem-solving capabilities of large language models (LLMs). This iterative process enables models to generate accurate, dynamic, and grounded outputs by integrating reasoning, actions (tool use), and real-world observations.\n            Language models are getting better at reasoning (e.g. chain-of-thought prompting) and acting (e.g. WebGPT, SayCan, ACT-1), but these two directions have remained separate. The TAO loop aims to bridge this gap by integrating reasoning and action in a single, iterative process.\n            By combining these capabilities, ReAct enhances decision-making, making AI more reliable and useful in real-world applications."
+        },
+        {
+          "type": "image",
+          "src": "./tao.png"
+        },
+        {
+          "type": "text",
+          "text": "The Thought-Action-Observation Loop is a structured, multi-step process where an LLM iteratively where an LLM iteratively :\n            \"Generates a Thought\" - The LLM generates a thought or plan based on the input it receives. It uses logical reasoning or planning to determine the next step in solving the problem.\n            \"Executes an Action\" - The LLM executes an action based on the thought it generated. This action can be a tool call or a decision to take a specific course of action. Tool such as searching a knowledge base, using a calculator, or querying an API.\n            \"Observes the Outcome\" - Processes the output or results from the action. It evaluates whether the action was successful or not, and uses this information to generate a new thought or plan."
+        },
+        {
+          "type": "header",
+          "text": "COT (Chain-of-Thought) vs ReAct"
+        },
+        {
+          "type": "text",
+          "text": "“Chain-of-thought” reasoning is a static black box, in that the model uses\nits own internal representations to generate thoughts and is not grounded in the external world,\nwhich limits its ability to reason reactively or update its knowledge. This can lead to issues like fact\nhallucination.\nReAct prompts LLMs to generate both verbal reasoning traces and actions pertaining to a task in an\ninterleaved manner, which allows the model to perform dynamic reasoning to create, maintain, and\nadjust high-level plans for acting (reason to act), while also interact with the external environments using tools\n(e.g. Wikipedia) to incorporate additional information into reasoning (act to reason)."
+        },
+        {
+          "type": "header",
+          "text": "Tools"
+        },
+        {
+          "type": "text",
+          "text": "By themselves, language models can't take actions - they just output text. A big use case for LangChain is creating agents. Agents are systems that use LLMs as reasoning engines to determine which actions to take and the inputs necessary to perform the action. After executing actions, the results can be fed back into the LLM to determine whether more actions are needed, or whether it is okay to finish. This is often achieved via tool-calling.\n            AI Agents are provided with a set of tools. They are free to decide which tool they can use based on the tool’s description and the task at hand."
+        },
+        {
+          "type": "header",
+          "text": "ReAct Prompting - The Magical Prompt that Makes the AI Agent Think"
+        },
+        {
+          "type": "code",
+          "code": "// Agent \nYou are an exprt AI Agent. Answer the following questions as best you can. \n\n// Tools\nYou have access to the following tools:\nDASA_search: Search for information about DASA. For any questions about DASA, you must use this tool\ntavily_search_results_json: A search engine optimized for comprehensive, accurate, and trusted results. Useful for when you need to answer questions about current events. Input should be a search query.\n\n// Format\nUse the following format:\n\nQuestion: the input question you must answer\n\n// Thought-Action-Observation Loop\nThought: you should always think about what to do\nAction: the action to take, should be one of [DASA_search, tavily_search_results_json]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\n// Query\nQuestion: What technological advancements have significantly impacted renewable energy production in the last decade?\nThought: "
+        },
+        {
+          "type": "link",
+          "href": "#/ai-agent-langchain",
+          "text": "ai agent using langchain langgraph"
+        },
+        {
+          "type": "reference",
+          "href": "https://agiflow.io/blog/optimise-cost-and-speed-of-agentic-workflow",
+          "text": "optimise-cost-and-speed-of-agentic-workflow"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.linkedin.com/pulse/fascinating-mind-ai-agent-from-langchain-vijaykumar-kartha-wpolc",
+          "text": "fascinating-mind-ai-agent-from-langchain-vijaykumar-kartha-wpolc"
+        },
+        {
+          "type": "reference",
+          "href": "https://www.anthropic.com/research/building-effective-agents",
+          "text": "building-effective-agents"
+        },
+        {
+          "type": "reference",
+          "href": "https://arxiv.org/pdf/2210.03629",
+          "text": "SYNERGIZING REASONING AND ACTING IN LANGUAGE MODELS"
+        },
+        {
+          "type": "reference",
+          "href": "https://publish.obsidian.md/drjerryasmith/Notes/Public/Thought-Action-Observation+Loop",
+          "text": "Thought-Action-Observation-Loop"
+        },
+        {
+          "type": "reference",
+          "href": "https://blog.devgenius.io/the-tao-of-prompt-engineering-part-1-understanding-the-react-framework-46559a0c9e5e",
+          "text": "understanding-the-react-framework"
+        },
+        {
+          "type": "reference",
+          "href": "https://react-lm.github.io/",
+          "text": "ReAct: Synergizing Reasoning and Acting in Language Models"
+        },
+        {
+          "type": "reference",
+          "href": "https://langchain-ai.github.io/langgraph/tutorials/workflows/",
+          "text": "workflows"
+        },
+        {
+          "type": "reference",
+          "href": "https://towardsdatascience.com/building-a-math-application-with-langchain-agents-23919d09a4d3/",
+          "text": "building-a-math-application-with-langchain-agents"
+        }
+      ]
+    }
+  },
+  {
+    "id": "3ed22da6-129c-55e7-bf05-b3c24530a046",
+    "slug": "ai-agent-langchain",
+    "title": "What is an AI agent?",
+    "dateISO": "2026-04-29",
+    "category": "Article",
+    "summary": "AI Agents be described as a system that can use a LLM to reason through a problem, create a plan to solve the problem, and execute the plan with the help of a provided set of tools.",
+    "body": "AI Agents be described as a system that can use a LLM to reason through a problem, create a plan to solve the problem, and execute the plan with the help of a provided set of tools.",
+    "imageVariant": 9,
+    "richDoc": {
+      "header": "What is an AI agent?",
+      "text": "AI Agents be described as a system that can use a LLM to reason through a problem, create a plan to solve the problem, and execute the plan with the help of a provided set of tools.",
+      "contents": [
+        {
+          "type": "link",
+          "href": "#/ai-agent-langchain",
+          "text": "ai agent using langchain"
+        },
+        {
+          "type": "header",
+          "text": "Instruction Fine-Tuning Datasets"
+        },
+        {
+          "type": "text",
+          "text": "These datasets consist of instructions paired with expected responses, guiding the model to execute tasks based on user commands.\n            The input and output string follow a template known as an instruction dataset format. Some popular ones are Alpaca, Vicuna, Databricks, LIMA."
+        },
+        {
+          "type": "reference",
+          "href": "https://www.ruder.io/an-overview-of-instruction-tuning-data",
+          "text": "an-overview-of-instruction-tuning-data"
+        },
+        {
+          "type": "code",
+          "code": "\n// instruction: A prompt or question that guides the model's response.\n// input: Additional context or information (can be empty).\n// output: The desired response from the model.\n\n[\n  {\n    \"instruction\": \"Write a short story about a robot learning to cook.\",\n    \"input\": \"\",\n    \"output\": \"In a bustling kitchen of the future, Robot X-5 stood motionless, its optical sensors fixed on the sizzling pan before it. 'Crack two eggs,' the recipe instructed. With precision, X-5 selected an egg from the carton, but its metallic fingers crushed the delicate shell, sending yolk dripping down its chassis. Undeterred, X-5 tried again, this time adjusting its grip strength. Success! The egg cracked perfectly into the pan. As the day progressed, X-5 learned to chop vegetables without pulverizing them and to measure ingredients with increasing accuracy. By evening, a slightly lopsided but edible omelet sat on a plate, steam rising from its golden surface. X-5's LED display flickered in what could only be described as pride. It had taken its first step in mastering the art of cooking, proving that even robots can find joy in creating something delicious.\"\n  },\n  {\n    \"instruction\": \"Summarize below input\",\n    \"input\": \"The main difference between instruction tuning and standard supervised fine-tuning lies in the data that the model is trained on. \n              Whereas supervised fine-tuning trains models on input examples and their corresponding outputs, instruction tuning augments input-output examples with instructions, \n              which enables instruction-tuned models to generalize more easily to new tasks.\",\n    \"output\": \"The key difference between instruction tuning and standard supervised fine-tuning is the training data. \n              Supervised fine-tuning uses input-output pairs, while instruction tuning adds instructions to these pairs, helping models generalize better to new tasks.\"\n   }\n]"
+        }
+      ]
+    }
+  },
+  {
+    "id": "e68f2123-7551-50d4-9fe4-370c1f4becb5",
+    "slug": "tune-phi3.5-mini",
+    "title": "Tuning microsoft/Phi-3.5-mini-instruct",
+    "dateISO": "2026-04-28",
+    "category": "Article",
+    "summary": "Phi-3.5-mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available websites - with a focus on very high-quality, reasoning dense data. The mo...",
+    "body": "Phi-3.5-mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available websites - with a focus on very high-quality, reasoning dense data. The model belongs to the Phi-3 model family and supports 128K token context length. The model underwent a rigorous enhancement process, incorporating both supervised fine-tuning, proximal policy optimization, and direct preference optimization to ensure precise instruction adherence and robust safety measures.",
+    "imageVariant": 7,
+    "richDoc": {
+      "header": "Tuning microsoft/Phi-3.5-mini-instruct",
+      "text": "Phi-3.5-mini is a lightweight, state-of-the-art open model built upon datasets used for Phi-3 - synthetic data and filtered publicly available websites - with a focus on very high-quality, reasoning dense data. The model belongs to the Phi-3 model family and supports 128K token context length. The model underwent a rigorous enhancement process, incorporating both supervised fine-tuning, proximal policy optimization, and direct preference optimization to ensure precise instruction adherence and robust safety measures.",
+      "contents": [
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/microsoft/Phi-3.5-mini-instruct",
+          "text": "microsoft/Phi-3.5-mini-instruct"
+        },
+        {
+          "type": "header",
+          "text": "Project creation using poetry"
+        },
+        {
+          "type": "code",
+          "code": "poetry new finetune-llm"
+        },
+        {
+          "type": "text",
+          "text": "Open Project in visual studio code."
+        },
+        {
+          "type": "header",
+          "text": "Apply Parameter-Efficient Fine-Tuning (LoRA)"
+        },
+        {
+          "type": "text",
+          "text": "Create Virtual Environment."
+        },
+        {
+          "type": "code",
+          "code": "python -m venv .env"
+        },
+        {
+          "type": "text",
+          "text": "Activate Virtual Environment."
+        },
+        {
+          "type": "code",
+          "code": "cd .venv\ncd Scripts\n./activate\ncd ../.."
+        },
+        {
+          "type": "text",
+          "text": "Visual Studio Code will ask to add the Python interpreter as per virtual env. Select yes."
+        },
+        {
+          "type": "header",
+          "text": "Install Poetry"
+        },
+        {
+          "type": "code",
+          "code": "python -m pip install poetry"
+        },
+        {
+          "type": "header",
+          "text": "Add dependencies using Poetry"
+        },
+        {
+          "type": "code",
+          "code": "python -m poetry add langchain langchain-community llama-cpp-python"
+        },
+        {
+          "type": "header",
+          "text": "Add dependencies using Poetry"
+        },
+        {
+          "type": "code",
+          "code": "// know your cuda version\npython -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126\npython -m pip install \"unsloth[cu126-torch260] @ git+https://github.com/unslothai/unsloth.git\"\npython -m pip install \"https://github.com/woct0rdho/triton-windows/releases/download/v3.2.0-windows.post9/triton-3.2.0-cp312-cp312-win_amd64.whl\"\npython -m pip install -U xformers --index-url https://download.pytorch.org/whl/cu126\n"
+        },
+        {
+          "type": "header",
+          "text": "Build llama.cpp"
+        },
+        {
+          "type": "code",
+          "code": "git clone https://github.com/ggerganov/llama.cpp\ncd llama.cpp\ncmake -B build -DGGML_CUDA=ON\ncmake --build build --config Release"
+        },
+        {
+          "type": "header",
+          "text": "Get the Dataset"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/datasets/haripritam/function-calling-alpaca",
+          "text": "function-calling-alpaca"
+        },
+        {
+          "type": "text",
+          "text": "Download parquet file"
+        },
+        {
+          "type": "header",
+          "text": "Start Training"
+        },
+        {
+          "type": "code",
+          "code": "from unsloth import FastLanguageModel\nimport torch\nfrom datasets import load_dataset\nfrom trl import SFTTrainer\nfrom transformers import TrainingArguments, AutoModelForCausalLM\nfrom peft import PeftModel\n\nmax_seq_length = 2048 # Choose any! We auto support RoPE Scaling internally!\ndtype = None          # None for auto detection. Float16 for Tesla T4, V100, Bfloat16 for Ampere+\nload_in_4bit = True   # Use 4bit quantization to reduce memory usage. Can be False.\n\nmodel, tokenizer = FastLanguageModel.from_pretrained(\n    model_name = \"microsoft/Phi-3.5-mini-instruct\",\n    max_seq_length = max_seq_length,\n    dtype = dtype,\n    load_in_4bit = load_in_4bit\n)\n\nmodel = FastLanguageModel.get_peft_model(\n    model,\n    r = 16, # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128\n    target_modules = [\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\",\n                      \"gate_proj\", \"up_proj\", \"down_proj\",],\n    lora_alpha = 16,\n    lora_dropout = 0, # Currently only supports dropout = 0\n    bias = \"none\",    # Currently only supports bias = \"none\"\n    use_gradient_checkpointing = True,\n    random_state = 3407,\n    max_seq_length = max_seq_length,\n)\n\nalpaca_prompt = \"\"\"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Input:\n{}\n\n### Response:\n{}\"\"\"\n\ndef formatting_prompts_func(examples):\n    instructions = examples[\"instruction\"]\n    inputs       = examples[\"input\"]\n    outputs      = examples[\"output\"]\n    texts = []\n    for instruction, input, output in zip(instructions, inputs, outputs):\n        text = alpaca_prompt.format(instruction, input, output)\n        texts.append(text)\n    return { \"text\" : texts, }\npass\n\n#dataset = load_dataset(\"json\", data_files=\"instruct.json\", split='train')\n\ndataset = load_dataset(\"parquet\", data_files={'train': \"../datasets/haripritam_function_calling_alpaca.parquet\"},split='train')\ndataset = dataset.map(formatting_prompts_func, batched = True)\n\nprint(f\"Dataset loaded : {dataset}\")\n\ntrainer = SFTTrainer(\n    model = model,\n    tokenizer = tokenizer,\n    train_dataset = dataset,\n    dataset_text_field = \"text\",\n    max_seq_length = max_seq_length,\n    args = TrainingArguments(\n        per_device_train_batch_size = 4,\n        gradient_accumulation_steps = 4,\n        warmup_steps = 10,\n        max_steps = 120,\n        learning_rate = 2e-4,\n        fp16 = not torch.cuda.is_bf16_supported(),\n        bf16 = torch.cuda.is_bf16_supported(),\n        logging_steps = 1,\n        optim = \"adamw_8bit\",\n        weight_decay = 0.01,\n        lr_scheduler_type = \"linear\",\n        seed = 3407,\n        output_dir = \"outputs\",\n    ),\n)\n\ngpu_stats = torch.cuda.get_device_properties(0)\nstart_gpu_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)\nmax_memory = round(gpu_stats.total_memory / 1024 / 1024 / 1024, 3)\nprint(f\"GPU = {gpu_stats.name}. Max memory = {max_memory} GB.\")\nprint(f\"{start_gpu_memory} GB of memory reserved.\")\n\ntrainer_stats = trainer.train()\n\nused_memory = round(torch.cuda.max_memory_reserved() / 1024 / 1024 / 1024, 3)\nused_memory_for_lora = round(used_memory - start_gpu_memory, 3)\nused_percentage = round(used_memory         /max_memory*100, 3)\nlora_percentage = round(used_memory_for_lora/max_memory*100, 3)\nprint(f\"{trainer_stats.metrics['train_runtime']} seconds used for training.\")\nprint(f\"{round(trainer_stats.metrics['train_runtime']/60, 2)} minutes used for training.\")\nprint(f\"Peak reserved memory = {used_memory} GB.\")\nprint(f\"Peak reserved memory for training = {used_memory_for_lora} GB.\")\nprint(f\"Peak reserved memory % of max memory = {used_percentage} %.\")\nprint(f\"Peak reserved memory for training % of max memory = {lora_percentage} %.\")\n\n\nmodel.save_pretrained(\"tuned_model\")\ntokenizer.save_pretrained(\"tuned_model\")\n\n# model.save_pretrained(\"tuned_model\")\n# tokenizer.save_pretrained(\"tuned_model\")\n# model.config.to_json_file(\"tuned_config.json\")\n\n\nmodel = AutoModelForCausalLM.from_pretrained(\"microsoft/Phi-3.5-mini-instruct\")\nmodel = PeftModel.from_pretrained(model, \"tuned_model\")\n\nmodel = model.merge_and_unload()\nmodel.save_pretrained(\"tuned_model\")\n"
+        },
+        {
+          "type": "header",
+          "text": "Convert Tuned Model to gguf format"
+        },
+        {
+          "type": "code",
+          "code": "python <path of llama.cpp>/llama.cpp/convert_hf_to_gguf.py ./tuned_model --outfile Phi-3.5-mini-instruct-tuned-f16.gguf --outtype f16"
+        },
+        {
+          "type": "header",
+          "text": "Quantize the Model"
+        },
+        {
+          "type": "code",
+          "code": "<path of llama.cpp>/llama.cpp/build/bin/Release/llama-quantize.exe Phi-3.5-mini-instruct-tuned-f16.gguf Phi-3.5-mini-instruct-tuned-f16-Q4-K.gguf Q4_K"
+        },
+        {
+          "type": "header",
+          "text": "Test the Quantized Model"
+        },
+        {
+          "type": "code",
+          "code": "from langchain_community.llms import LlamaCpp\nfrom langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler, StdOutCallbackHandler\nfrom langchain_core.prompts import PromptTemplate\n\n# Callbacks support token-wise streaming\ncallback_manager = CallbackManager([StdOutCallbackHandler()])\n\n# Make sure the model path is correct for your system!\nllm = LlamaCpp(\n    model_path=\"./tuned_model_Phi_3.5_mini_instruct/Phi-3.5-mini-instruct-tuned-f16-Q4-K.gguf\",\n    temperature=0,\n    max_tokens=2000,\n    top_p=1,\n    callback_manager=callback_manager,\n    verbose=False,  # Verbose is required to pass to the callback manager,\n    stop=[\"Human\"] # Necessary To give the model a hint to stop generating text after the prompt. Otherwise it's going in lengthy question answer mode.\n)\n\nquestion = \"\"\"\nYou are a helpful assistant with access to the following functions. Use them if required - { \"name\": \"calculate_median\", \"description\": \"Calculate the median of a list of numbers\", \"parameters\": { \"type\": \"object\", \"properties\": { \"numbers\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }, \"description\": \"The list of numbers\" } }, \"required\": [ \"numbers\" ] } }\nHuman: Hi, I have a list of numbers and I need to find the median. The numbers are 5, 2, 9, 1, 7, 4, 6, 3, 8.\nAI :\n\"\"\"\nresult = llm.invoke(question)\nprint(result)\n\n\n# Callbacks support token-wise streaming\ncallback_manager_original = CallbackManager([StdOutCallbackHandler()])\n\nllm_original = LlamaCpp(\n    model_path=\"./tuned_model_Phi_3.5_mini_instruct/original_model/Phi-3.5-mini-instruct-Q4_0.gguf\",\n    temperature=0,\n    max_tokens=2000,\n    top_p=1,\n    callback_manager=callback_manager_original,\n    verbose=False,  # Verbose is required to pass to the callback manager,\n    stop=[\"Human\"] # Necessary To give the model a hint to stop generating text after the prompt. Otherwise it's going in lengthy question answer mode.\n)\n\nquestion_original = \"\"\"\nYou are a helpful assistant with access to the following functions. Use them if required - { \"name\": \"calculate_median\", \"description\": \"Calculate the median of a list of numbers\", \"parameters\": { \"type\": \"object\", \"properties\": { \"numbers\": { \"type\": \"array\", \"items\": { \"type\": \"number\" }, \"description\": \"The list of numbers\" } }, \"required\": [ \"numbers\" ] } }\nHuman: Hi, I have a list of numbers and I need to find the median. The numbers are 5, 2, 9, 1, 7, 4, 6, 3, 8.\nAI :\n\"\"\"\nresult_original = llm_original.invoke(question_original)\nprint(result_original)\n"
+        },
+        {
+          "type": "header",
+          "text": "Test Result"
+        },
+        {
+          "type": "code",
+          "code": "// Result of Tuned Model\n\n{\n  \"name\": \"calculate_median\",\n  \"arguments\": {\n    \"numbers\": [5, 2, 9, 1, 7, 4, 6, 3, 8]\n  }\n}\n}\nHere is the result: The median of your list (sorted in ascending order) is 5. If you need further assistance or have any other questions, feel freHere is the result: The median of your list (sorted in ascending order) is 5. If you need further assistance or have any other questions, feel free to ask! I'm here to help.\n\ne to ask! I'm here to help.\n\n// Result of original Model\n\nTo find the median of your list, I will use a function designed for this purpose. Here's how it works:\n\n1. Firstly, we need to sort the numbers in ascending order which would be 1, 2, 3, 4, 5, 6, 7, 8, and 9.\n\n1. Firstly, we need to sort the numbers in ascending order which would be 1, 2, 3, 4, 5, 6, 7, 8, and 9.\n2. Since there are nine numbers (an odd amount), the median will simply be the middle number of this sorted list. In our case:\n2. Since there are nine numbers (an odd amount), the median will simply be the middle number of this sorted list. In our case:\n   - Sorted List = [1, 2, 3, 4, 5, 6, 7, 8, 9]\n   - Sorted List = [1, 2, 3, 4, 5, 6, 7, 8, 9]\n   - Median Position = Number of values / 2 = 9/2 = 4.5 (which means we take the average between fourth and fifth numbers)\n   - Median Position = Number of values / 2 = 9/2 = 4.5 (which means we take the average between fourth and fifth numbers)\n\nSince there's no actual function call here but a manual calculation:\n- The middle two numbers are both at position number four in our sorted list, which is '3'. There isn’t an exact midpoint since it has odd count of values. Therefore we don't need to average anything; the median value itself will be 3 as per your ordered set.\n\nSo, for your given data: The median is **3**.\n"
+        },
+        {
+          "type": "reference",
+          "href": "https://discuss.huggingface.co/t/config-json-is-not-saving-after-finetuning-llama-2/56871/5",
+          "text": "config-json-is-not-saving-after-finetuning-llama"
+        },
+        {
+          "type": "reference",
+          "href": "https://discuss.huggingface.co/t/how-to-create-a-config-json-after-saving-a-model/10459/11",
+          "text": "how-to-create-a-config-json-after-saving-a-model"
+        },
+        {
+          "type": "reference",
+          "href": "https://huggingface.co/docs/datasets/en/loading#parquet",
+          "text": "parquet format"
+        }
+      ]
+    }
+  }
+]

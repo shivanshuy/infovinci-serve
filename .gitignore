@@ -1,0 +1,30 @@
+# Secrets and local env
+.env
+.env.local
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+dist/
+build/
+
+# LangGraph / tooling
+.langgraph_api/
+
+# Local runtime data (regen via seed / embed)
+data/infovinci_chroma/
+data/infovinci.db
+*.db-journal
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.sw?

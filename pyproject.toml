@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "infovinci-serve"
+version = "0.1.0"
+description = "FastAPI blog REST API; LangGraph agent runs via langgraph dev (see langgraph.json)."
+authors = ["Infovinci"]
+readme = "README.md"
+packages = [{ include = "infovinci_serve", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.32.0" }
+httpx = "^0.28.0"
+sqlalchemy = "^2.0.36"
+langgraph = ">=0.2.0"
+langchain = ">=0.3.0"
+langchain-openai = ">=0.2.0"
+langchain-ollama = "^1.1.0"
+chromadb = "^1.5.9"
+sentence-transformers = "^5.4.1"
+langchain-chroma = "^1.1.0"
+langchain-text-splitters = "^1.1.2"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.8.0"
+langgraph-cli = { version = "^0.4.0", extras = ["inmem"] }
+
+[tool.poetry.scripts]
+infovinci-serve = "infovinci_serve.main:main"
+infovinci-chat-bff = "infovinci_serve.main:main"
+infovinci-embed-blogs = "infovinci_serve.blog_embedder:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
